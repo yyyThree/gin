@@ -1,0 +1,8 @@
+app:
+  token_secret: token
+http:
+  port: 10080
+  read_time_out: 10
+  write_time_out: 10
+
+language: zh
