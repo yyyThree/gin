@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type baseRes struct {
@@ -32,8 +33,8 @@ type errorRes struct {
 }
 
 // 通用接口返回
-func response(c *gin.Context, res interface{}) {
-	c.JSON(http.StatusOK, res)
+func response(c *gin.Context, httpCode int, res interface{}) {
+	c.JSON(httpCode, res)
 	return
 }
 
@@ -46,7 +47,7 @@ func Suc(c *gin.Context, data interface{}) {
 		},
 		data,
 	}
-	response(c, res)
+	response(c, http.StatusOK, res)
 	return
 }
 
@@ -62,21 +63,55 @@ func SucList(c *gin.Context, data interface{}, total int) {
 		},
 		total,
 	}
-	response(c, res)
+	response(c, http.StatusOK, res)
 	return
 }
 
 // 失败返回
 func Fail(c *gin.Context, state int, msgCode string) {
+	switch state {
+	case constant.ParamsBindError:
+		BindFail(c, msgCode)
+	case constant.ParamsValidError:
+		ValidFail(c, msgCode)
+	default:
+		// 获取对应的msg
+		msg := getMsg(msgCode)
+		res := failRes{
+			baseRes{
+				State: state,
+				Msg:   msg,
+			},
+		}
+		response(c, http.StatusOK, res)
+	}
+	return
+}
+
+
+// 参数绑定错误
+func BindFail(c *gin.Context, msg string) {
 	// 获取对应的msg
-	msg := getMsg(msgCode)
 	res := failRes{
 		baseRes{
-			State: state,
-			Msg:   msg,
+			State: constant.ParamsBindError,
+			Msg:   strings.Join([]string{getMsg("Common.Valid.20001"), msg}, " "),
 		},
 	}
-	response(c, res)
+	response(c, http.StatusBadRequest, res)
+	return
+}
+
+// 参数校验错误
+func ValidFail(c *gin.Context, msg string) {
+	// 获取对应的msg
+	res := failRes{
+		baseRes{
+			State: constant.ParamsValidError,
+			Msg:   strings.Join([]string{getMsg("Common.Valid.20002"), msg}, " "),
+		},
+	}
+	response(c, http.StatusBadRequest, res)
 	return
 }
 
@@ -88,7 +123,7 @@ func AuthFail(c *gin.Context, state int) {
 			Msg:   getMsg("Common.Auth." + strconv.Itoa(state)),
 		},
 	}
-	c.JSON(http.StatusUnauthorized, res)
+	response(c, http.StatusUnauthorized, res)
 	return
 }
 
@@ -101,14 +136,16 @@ func Error(c *gin.Context, data interface{}) {
 		},
 		data,
 	}
-	c.JSON(http.StatusInternalServerError, res)
+	response(c, http.StatusInternalServerError, res)
 	return
 }
 
 // 404
 func NotFound(c *gin.Context) {
-	c.JSON(http.StatusNotFound, baseRes{
+	res := baseRes{
 		State: constant.ApiNotFound,
 		Msg:   getMsg("Common.Api." + strconv.Itoa(constant.ApiNotFound)),
-	})
+	}
+	response(c, http.StatusNotFound, res)
+	return
 }

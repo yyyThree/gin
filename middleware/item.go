@@ -17,6 +17,6 @@ func (item *Item) Handler() gin.HandlerFunc {
 		c.Next()
 
 		// after request
-		fmt.Println("item中间件开始")
+		fmt.Println("item中间件结束")
 	}
 }

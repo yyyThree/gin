@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"gin/config"
+	"gin/migration"
+	"gin/model"
 	"gin/router"
 	"github.com/braintree/manners"
 	"net/http"
@@ -12,7 +14,11 @@ import (
 // 初始化操作
 func init()  {
 	// 加载配置
-	config.LoadConfig()
+	config.Load()
+	// 加载数据库配置
+	model.Load()
+	// 执行数据库迁移
+	migration.Migrate()
 }
 
 // 启动服务器

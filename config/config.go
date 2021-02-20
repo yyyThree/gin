@@ -13,6 +13,7 @@ type configList struct {
 	App      app    `mapstructure:"app"`
 	Http     http   `mapstructure:"http"`
 	Language string `mapstructure:"language"`
+	Db databases `mapstructure:"db"`
 }
 
 type app struct {
@@ -25,14 +26,28 @@ type http struct {
 	WriteTimeout int `mapstructure:"write_time_out"`
 }
 
+type Database struct {
+	Host string `mapstructure:"host"`
+	Port string `mapstructure:"port"`
+	User string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	MaxOpenConnections int `mapstructure:"max_open_connections"`
+	MaxIdleConnections int `mapstructure:"max_idle_connections"`
+}
+
+type databases struct {
+	Master Database `mapstructure:"master"`
+	Slave Database `mapstructure:"slave"`
+}
+
 var (
-	load   sync.Once // 确保配置文件仅需加载一次
+	_load   sync.Once // 确保配置文件仅需加载一次
 	Config configList
 )
 
 // 加载配置文件，仅需加载一次
-func LoadConfig() {
-	load.Do(func() {
+func Load() {
+	_load.Do(func() {
 		viper.SetConfigName("config")
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(".")

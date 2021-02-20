@@ -13,6 +13,7 @@ var secret = "token"
 var data = map[string]interface{}{
 	"data1": 1,
 	"data2": "data2",
+	"store_id": 1,
 }
 
 func TestToken_Encode(t *testing.T) {

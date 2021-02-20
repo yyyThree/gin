@@ -4,5 +4,19 @@ http:
   port: 10080
   read_time_out: 10
   write_time_out: 10
-
 language: zh
+db:
+  master:
+    host: 192.168.3.53
+    port: 3355
+    user: cishop
+    password: fuyuan1906
+    max_open_connections: 200
+    max_idle_connections: 10
+  slave:
+    host: 192.168.3.53
+    port: 3355
+    user: cishop
+    password: fuyuan1906
+    max_open_connections: 100
+    max_idle_connections: 5

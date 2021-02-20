@@ -13,4 +13,12 @@ const (
 	TokenExpired = 1004
 	TokenNotValidYet = 1005
 	TokenNotValid = 1006
+	TokenParamsNotValid = 1007
+
+	ParamsBindError = 20001
+	ParamsValidError = 20002
+
+	ModelSuc = 1
+	ModelParamsError = 5001
+	ModelSqlExecError = 5002
 )

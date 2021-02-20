@@ -2,6 +2,7 @@ package output
 
 import (
 	"gin/config"
+	"gin/constant"
 	"strconv"
 	"strings"
 
@@ -9,7 +10,7 @@ import (
 	"gin/output/language/zh"
 )
 
-type msgListType map[string]map[string]map[int]string
+type msgListType map[string]constant.MsgMap
 
 type languageListType map[string]msgListType
 

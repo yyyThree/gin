@@ -13,20 +13,18 @@ const (
 	alg = "HS256"
 )
 
-type dataType map[string]interface{}
-
 type token struct {
-	expire int64 // 生成后，多少秒内有效
-	before int64 // 生成前，多少秒有效（防止时间不同步）
-	data dataType // 私有参数
+	expire int64  // 生成后，多少秒内有效
+	before int64  // 生成前，多少秒有效（防止时间不同步）
+	data   constant.BaseMap   // 私有参数
 	secret string // 生成密钥
-	token string // 生成结果
+	token  string // 生成结果
 }
 
 // 自定义token负载体
 type claims struct {
 	jwt.StandardClaims
-	Data dataType `json:"data"`
+	Data constant.BaseMap `json:"data"`
 }
 
 // 构建token结构
@@ -53,7 +51,7 @@ func (token *token) SetSecret(secret string) {
 }
 
 // 设置token私有数据
-func (token *token) SetData(data dataType) {
+func (token *token) SetData(data constant.BaseMap) {
 	token.data = data
 }
 
@@ -83,12 +81,12 @@ func (token *token) Encode() (string, error) {
 		return "", err
 	}
 
-	token.token = tokenString
+	token.SetToken(tokenString)
 	return tokenString, nil
 }
 
 // 解析token
-func (token *token) Decode() (data dataType, state int) {
+func (token *token) Decode() (data constant.BaseMap, state int) {
 	if len(token.token) == 0 {
 		state = constant.TokenNotFound
 		return
@@ -115,7 +113,7 @@ func (token *token) Decode() (data dataType, state int) {
 	if newToken != nil {
 		if claims, ok := newToken.Claims.(*claims); ok && newToken.Valid {
 			data = claims.Data
-			token.data = data
+			token.SetData(data)
 			state = constant.TokenValid
 			return
 		}
@@ -125,7 +123,7 @@ func (token *token) Decode() (data dataType, state int) {
 }
 
 // 纯解析token，不做任何校验
-func (token *token) DecodeSegment() (data dataType, state int) {
+func (token *token) DecodeSegment() (data constant.BaseMap, state int) {
 	if len(token.token) == 0 {
 		state = constant.TokenNotFound
 		return
@@ -148,7 +146,7 @@ func (token *token) DecodeSegment() (data dataType, state int) {
 	}
 
 	data = tokenClaims.Data
-	token.data = data
+	token.SetData(data)
 	state = constant.TokenValid
 	return
 }

@@ -2,11 +2,17 @@ package controller
 
 import (
 	"fmt"
+	"gin/constant"
 	"gin/output"
+	"gin/service"
 	"github.com/gin-gonic/gin"
 )
 
 type Item struct {
+}
+
+type ItemAddParams struct {
+	Name string `form:"name"`
 }
 
 func (item *Item) Get(c *gin.Context) {
@@ -20,11 +26,24 @@ func (item *Item) Get(c *gin.Context) {
 }
 
 func (item *Item) Add(c *gin.Context) {
-	storeId := c.PostForm("storeId")
-	itemId := c.PostForm("itemId")
-	name := c.PostForm("name")
-	test := c.PostFormMap("test")
-	fmt.Println("ItemAdd", storeId, itemId, name, test)
+	params := ItemAddParams{}
+	if err := c.ShouldBind(&params); err != nil {
+		output.BindFail(c, err.Error())
+		return
+	}
+
+	// storeId, _ := c.Get("storeId")
+	itemService := &service.Item{
+		// StoreID: strconv.Atoi(storeId),
+		Name: params.Name,
+	}
+	state, msgCode, data := itemService.Add()
+	if state != constant.ApiSuc {
+		output.Fail(c, state, msgCode)
+		return
+	}
+	output.Suc(c, data)
+	return
 }
 
 func (item *Item) Update(c *gin.Context) {

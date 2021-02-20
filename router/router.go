@@ -31,6 +31,7 @@ func Router() *gin.Engine {
 	for _, middlewareHandler := range middlewareHandlers {
 		router.Use(middlewareHandler())
 	}
+	router.Use(gin.Logger())
 
 	// 子路由注册
 	for _, routerGroup := range routerGroups {

@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+type TokenData struct {
+	storeId int
+}
+
 type Jwt struct {
 }
 
@@ -24,7 +28,7 @@ func (jwt *Jwt) Handler() gin.HandlerFunc {
 			c.Abort()
 		}
 
-		c.Set("tokenData", data)
+		c.Set("StoreId", data["store_id"])
 
 		// before request
 
@@ -36,7 +40,7 @@ func (jwt *Jwt) Handler() gin.HandlerFunc {
 }
 
 // 校验token合法性
-func checkToken(c *gin.Context) (data interface{}, state int) {
+func checkToken(c *gin.Context) (data constant.BaseMap, state int) {
 	token := c.GetHeader("Authorization")
 	if len(token) == 0 {
 		state = constant.TokenNotFound
@@ -54,6 +58,13 @@ func checkToken(c *gin.Context) (data interface{}, state int) {
 	tokenStruct.SetSecret(config.Config.App.TokenSecret)
 	tokenStruct.SetToken(token)
 	data, state = tokenStruct.Decode()
+
+	fmt.Println(data)
+	// 校验token必要参数
+	if _, ok := data["store_id"]; !ok {
+		state = constant.TokenParamsNotValid
+		return
+	}
 
 	return
 }
