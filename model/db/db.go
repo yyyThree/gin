@@ -1,4 +1,4 @@
-package model
+package db
 
 import (
 	"errors"
@@ -6,9 +6,11 @@ import (
 	"gin/config"
 	"gin/constant"
 	"gin/helper"
+	"github.com/rubenv/sql-migrate"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 	"log"
 	"os"
 	"sync"
@@ -16,21 +18,22 @@ import (
 )
 
 // 仅加载一次配置
-var _load sync.Once
+var load sync.Once
 
-var _dbLinks = map[string]map[string]*gorm.DB{
+var dbLinks = map[string]map[string]*gorm.DB{
 	"master": make(map[string]*gorm.DB),
 	"slave":  make(map[string]*gorm.DB),
 }
 
 func Load() {
-	_load.Do(func() {
+	load.Do(func() {
 		if err := open("master"); err != nil {
 			panic(err)
 		}
 		if err := open("slave"); err != nil {
 			panic(err)
 		}
+		dbMigrate()
 	})
 }
 
@@ -50,7 +53,7 @@ func open(db string) error {
 	}
 
 	for _, dbName := range constant.DataBases {
-		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&loc=Local",
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			dbConfig.User,
 			dbConfig.Password,
 			dbConfig.Host,
@@ -58,6 +61,9 @@ func open(db string) error {
 			dbName,
 		)
 		dblink, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+			NamingStrategy: schema.NamingStrategy{
+				SingularTable: true, // 使用单数表名，启用该选项后，`Item` 表将是`item`
+			},
 			Logger: logger.New(
 				log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 				logger.Config{
@@ -83,14 +89,18 @@ func open(db string) error {
 		if dbConfig.MaxIdleConnections > 0 {
 			sqlDB.SetMaxIdleConns(dbConfig.MaxIdleConnections)
 		}
-		_dbLinks[db][dbName] = dblink
+		// 连接可复用的最大时间
+		if dbConfig.MaxConnectionIdleTime > 0 {
+			sqlDB.SetConnMaxIdleTime(time.Second * time.Duration(dbConfig.MaxIdleConnections))
+		}
+		dbLinks[db][dbName] = dblink
 	}
 
 	return nil
 }
 
 func getDB(db string, dbName string) (*gorm.DB, error) {
-	if dbLink, ok := _dbLinks[db][dbName]; ok {
+	if dbLink, ok := dbLinks[db][dbName]; ok {
 		return dbLink, nil
 	}
 	return nil, errors.New("数据库连接失败")
@@ -104,4 +114,18 @@ func GetMasterDB(dbName string) *gorm.DB {
 func GetSlaveDB(dbName string) *gorm.DB {
 	dblink, _ := getDB("slave", dbName)
 	return dblink
+}
+
+// 执行数据库迁移
+func dbMigrate()  {
+	migrations := &migrate.FileMigrationSource{
+		Dir: "migration",
+	}
+	dblink := GetMasterDB(constant.DbServiceItems)
+	sqlDB, _ := dblink.DB()
+	_, err := migrate.Exec(sqlDB, "mysql", migrations, migrate.Up)
+	if err != nil {
+		panic("sqlMigrate err " + err.Error())
+	}
+	return
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"gin/constant"
+	"gin/output/code"
 	"github.com/dgrijalva/jwt-go"
 	"strings"
 	"time"
@@ -14,11 +15,11 @@ const (
 )
 
 type token struct {
-	expire int64  // 生成后，多少秒内有效
-	before int64  // 生成前，多少秒有效（防止时间不同步）
-	data   constant.BaseMap   // 私有参数
-	secret string // 生成密钥
-	token  string // 生成结果
+	expire int64            // 生成后，多少秒内有效
+	before int64            // 生成前，多少秒有效（防止时间不同步）
+	data   constant.BaseMap // 私有参数
+	secret string           // 生成密钥
+	token  string           // 生成结果
 }
 
 // 自定义token负载体
@@ -30,7 +31,7 @@ type claims struct {
 // 构建token结构
 func New() *token {
 	return &token{
-		expire: 604800,
+		expire: 3600 * 12 * 7,
 		before: 3600,
 	}
 }
@@ -86,9 +87,9 @@ func (token *token) Encode() (string, error) {
 }
 
 // 解析token
-func (token *token) Decode() (data constant.BaseMap, state int) {
+func (token *token) Decode() (data constant.BaseMap, errCode code.Code) {
 	if len(token.token) == 0 {
-		state = constant.TokenNotFound
+		errCode = code.TokenNotFound
 		return
 	}
 
@@ -98,13 +99,13 @@ func (token *token) Decode() (data constant.BaseMap, state int) {
 	if err != nil {
 		if ve, ok := err.(*jwt.ValidationError); ok {
 			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-				state = constant.TokenMalformed
+				errCode = code.TokenMalformed
 			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
-				state = constant.TokenExpired
+				errCode = code.TokenExpired
 			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-				state = constant.TokenNotValidYet
+				errCode = code.TokenNotValidYet
 			} else {
-				state = constant.TokenNotValid
+				errCode = code.TokenNotValid
 			}
 		}
 		return
@@ -114,39 +115,36 @@ func (token *token) Decode() (data constant.BaseMap, state int) {
 		if claims, ok := newToken.Claims.(*claims); ok && newToken.Valid {
 			data = claims.Data
 			token.SetData(data)
-			state = constant.TokenValid
 			return
 		}
 	}
-	state = constant.TokenNotValid
+	errCode = code.TokenNotValid
 	return
 }
 
 // 纯解析token，不做任何校验
-func (token *token) DecodeSegment() (data constant.BaseMap, state int) {
+func (token *token) DecodeSegment() (data constant.BaseMap, errCode code.Code) {
 	if len(token.token) == 0 {
-		state = constant.TokenNotFound
 		return
 	}
 	tokenSplit := strings.Split(token.token, ".")
 	if len(tokenSplit) != 3 {
-		state = constant.TokenNotFound
+		errCode = code.TokenNotFound
 		return
 	}
 	tokenData, err := jwt.DecodeSegment(tokenSplit[1])
 	if len(tokenData) == 0 || err != nil {
-		state = constant.TokenNotValid
+		errCode = code.TokenNotFound
 		return
 	}
 
 	tokenClaims := claims{}
 	if err = json.Unmarshal(tokenData, &tokenClaims); err != nil {
-		state = constant.TokenNotValid
+		errCode = code.TokenNotValid
 		return
 	}
 
 	data = tokenClaims.Data
 	token.SetData(data)
-	state = constant.TokenValid
 	return
 }

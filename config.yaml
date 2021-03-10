@@ -11,12 +11,14 @@ db:
     port: 3355
     user: cishop
     password: fuyuan1906
-    max_open_connections: 200
-    max_idle_connections: 10
+    max_open_connections: 10
+    max_idle_connections: 5
+    max_connection_idle_time: 300
   slave:
     host: 192.168.3.53
     port: 3355
     user: cishop
     password: fuyuan1906
-    max_open_connections: 100
-    max_idle_connections: 5
+    max_open_connections: 10
+    max_idle_connections: 2
+    max_connection_idle_time: 300

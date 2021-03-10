@@ -15,9 +15,11 @@ func (itemGroup *itemGroup) router(router *gin.Engine) {
 	itemRouter.Use(new(middleware.Item).Handler())
 	itemController := new(controller.Item)
 	{
-		itemRouter.GET("/get/:itemId", itemController.Get)
 		itemRouter.POST("/add", itemController.Add)
-		itemRouter.PUT("/update/:itemId", itemController.Update)
-		itemRouter.DELETE("/del/:itemId", itemController.Del)
+		itemRouter.PUT("/update", itemController.Update)
+		itemRouter.DELETE("/delete", itemController.Delete)
+		itemRouter.PUT("/recover", itemController.Recover)
+		itemRouter.GET("/get", itemController.Get)
+		itemRouter.GET("/search", itemController.Search)
 	}
 }

@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"gin/config"
 	"gin/constant"
+	"gin/helper"
 	tokenLibrary "gin/library/token"
 	"gin/output"
+	"gin/output/code"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
-
-type TokenData struct {
-	storeId int
-}
 
 type Jwt struct {
 }
@@ -22,15 +20,14 @@ func (jwt *Jwt) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		fmt.Println("权限校验中间件开始")
 
-		data, state := checkToken(c)
-		if state != 1 {
-			output.AuthFail(c, state)
+		data, err := checkToken(c)
+		if err != nil {
+			output.Response(c, nil, err)
 			c.Abort()
 		}
 
-		c.Set("StoreId", data["store_id"])
-
-		// before request
+		c.Set("AppKey", data["appKey"])
+		c.Set("Channel", helper.InterfaceToInt(data["channel"]))
 
 		c.Next()
 
@@ -40,15 +37,15 @@ func (jwt *Jwt) Handler() gin.HandlerFunc {
 }
 
 // 校验token合法性
-func checkToken(c *gin.Context) (data constant.BaseMap, state int) {
+func checkToken(c *gin.Context) (data constant.BaseMap, err error) {
 	token := c.GetHeader("Authorization")
 	if len(token) == 0 {
-		state = constant.TokenNotFound
+		err = output.Error(code.NoAuthorization)
 		return
 	}
 
 	if !strings.HasPrefix(token, "Bearer ") {
-		state = constant.TokenNotValidPrefix
+		err = output.Error(code.AuthorizationErr)
 		return
 	}
 
@@ -57,12 +54,22 @@ func checkToken(c *gin.Context) (data constant.BaseMap, state int) {
 	tokenStruct := tokenLibrary.New()
 	tokenStruct.SetSecret(config.Config.App.TokenSecret)
 	tokenStruct.SetToken(token)
-	data, state = tokenStruct.Decode()
+	data, errCode := tokenStruct.Decode()
+
+	if errCode > 0 {
+		err = output.Error(errCode)
+		return
+	}
 
 	fmt.Println(data)
+
 	// 校验token必要参数
-	if _, ok := data["store_id"]; !ok {
-		state = constant.TokenParamsNotValid
+	if _, ok := data["appKey"]; !ok {
+		err = output.Error(code.TokenNotValid)
+		return
+	}
+	if _, ok := data["channel"]; !ok {
+		err = output.Error(code.TokenNotValid)
 		return
 	}
 

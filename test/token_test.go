@@ -11,9 +11,10 @@ var testTokenString = ""
 var testTokenDecode = token.New()
 var secret = "token"
 var data = map[string]interface{}{
+	"appKey": "testAppKey",
+	"channel": 2,
 	"data1": 1,
 	"data2": "data2",
-	"store_id": 1,
 }
 
 func TestToken_Encode(t *testing.T) {

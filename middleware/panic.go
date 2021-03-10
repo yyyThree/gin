@@ -4,7 +4,9 @@ package middleware
 import (
 	"fmt"
 	"gin/output"
+	"gin/output/code"
 	"github.com/gin-gonic/gin"
+	"runtime"
 )
 
 type Panic struct {
@@ -17,8 +19,11 @@ func (panic *Panic) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if e := recover(); e != nil {
-				fmt.Printf("自定义Panicing %s\r\n", e)
-				output.Error(c, e)
+				// TODO 邮件报警
+				var buf [4096]byte
+				n := runtime.Stack(buf[:], false)
+				fmt.Printf("==> %s\n", string(buf[:n]))
+				output.Response(c, nil, output.Error(code.ServerErr).WithDetails(e))
 				c.Abort()
 			}
 		}()

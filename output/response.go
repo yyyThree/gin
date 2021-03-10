@@ -1,151 +1,122 @@
 package output
 
 import (
-	"gin/constant"
+	"encoding/json"
+	"errors"
+	"gin/output/code"
 	"github.com/gin-gonic/gin"
+	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
-type baseRes struct {
+type baseResponse struct {
 	State int    `json:"state"`
 	Msg   string `json:"msg"`
 }
 
-type sucRes struct {
-	baseRes
-	Data interface{} `json:"data"`
+type SucResponse struct {
+	*baseResponse
+	Data interface{} `json:"data,omitempty"`
 }
 
-type sucListRes struct {
-	sucRes
+type ListResponse struct {
+	*SucResponse
 	Total int `json:"total"`
 }
 
-type failRes struct {
-	baseRes
+type ErrResponse struct {
+	*baseResponse
+	ErrorData interface{} `json:"error_data,omitempty"`
 }
 
-type errorRes struct {
-	baseRes
-	Data interface{} `json:"data"`
+type ResponseI interface {
+	setBaseInfo(*Status)
 }
 
-// 通用接口返回
-func response(c *gin.Context, httpCode int, res interface{}) {
-	c.JSON(httpCode, res)
-	return
+func (resp *baseResponse) setBaseInfo(status *Status) {
+	resp.State = status.GetCode()
+	resp.Msg = status.GetMessage()
 }
 
-// 成功返回
-func Suc(c *gin.Context, data interface{}) {
-	res := sucRes{
-		baseRes{
-			State: constant.ApiSuc,
-			Msg:   getMsg("Common.Api." + strconv.Itoa(constant.ApiSuc)),
-		},
-		data,
+func (resp *SucResponse) setBaseInfo(status *Status) {
+	if resp.baseResponse == nil {
+		resp.baseResponse = &baseResponse{}
 	}
-	response(c, http.StatusOK, res)
-	return
+	resp.State = status.GetCode()
+	resp.Msg = status.GetMessage()
 }
 
-// 列表成功返回
-func SucList(c *gin.Context, data interface{}, total int) {
-	res := sucListRes{
-		sucRes{
-			baseRes{
-				State: constant.ApiSuc,
-				Msg:   getMsg("Common.Api." + strconv.Itoa(constant.ApiSuc)),
-			},
-			data,
-		},
-		total,
-	}
-	response(c, http.StatusOK, res)
-	return
-}
-
-// 失败返回
-func Fail(c *gin.Context, state int, msgCode string) {
-	switch state {
-	case constant.ParamsBindError:
-		BindFail(c, msgCode)
-	case constant.ParamsValidError:
-		ValidFail(c, msgCode)
-	default:
-		// 获取对应的msg
-		msg := getMsg(msgCode)
-		res := failRes{
-			baseRes{
-				State: state,
-				Msg:   msg,
-			},
+func (resp *ListResponse) setBaseInfo(status *Status) {
+	if resp.SucResponse == nil {
+		resp.SucResponse = &SucResponse{
+			baseResponse: &baseResponse{},
+			Data:         nil,
 		}
-		response(c, http.StatusOK, res)
 	}
-	return
+	if resp.SucResponse.baseResponse == nil {
+		resp.SucResponse.baseResponse = &baseResponse{}
+	}
+
+	resp.State = status.GetCode()
+	resp.Msg = status.GetMessage()
 }
 
-
-// 参数绑定错误
-func BindFail(c *gin.Context, msg string) {
-	// 获取对应的msg
-	res := failRes{
-		baseRes{
-			State: constant.ParamsBindError,
-			Msg:   strings.Join([]string{getMsg("Common.Valid.20001"), msg}, " "),
-		},
+func (resp *ErrResponse) setBaseInfo(status *Status) {
+	if resp.baseResponse == nil {
+		resp.baseResponse = &baseResponse{}
 	}
-	response(c, http.StatusBadRequest, res)
-	return
+
+	if len(status.GetDetails()) > 0 {
+		resp.ErrorData = status.GetDetails()
+	}
+	resp.State = status.GetCode()
+	resp.Msg = status.GetMessage()
 }
 
-// 参数校验错误
-func ValidFail(c *gin.Context, msg string) {
-	// 获取对应的msg
-	res := failRes{
-		baseRes{
-			State: constant.ParamsValidError,
-			Msg:   strings.Join([]string{getMsg("Common.Valid.20002"), msg}, " "),
-		},
+// 统一输出方法
+func Response(c *gin.Context, resp ResponseI, err error) {
+	// 成功
+	if err == nil {
+		resp.setBaseInfo(Error(code.OK))
+		c.JSON(http.StatusOK, resp)
+		return
 	}
-	response(c, http.StatusBadRequest, res)
-	return
-}
 
-// 请求权限校验失败返回
-func AuthFail(c *gin.Context, state int) {
-	res := failRes{
-		baseRes{
-			State: state,
-			Msg:   getMsg("Common.Auth." + strconv.Itoa(state)),
-		},
+	// err != nil
+	resp = &ErrResponse{}
+	status := &Status{}
+	switch v := err.(type) {
+	case *Status:
+		status = v
+	case *json.UnmarshalTypeError, *strconv.NumError:
+		status = Error(code.ParamBindErr).WithDetails(v.Error())
+	case *mysql.MySQLError:
+		status = Error(code.MySqlErr).WithDetails(err)
+	default:
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			status = Error(code.RecordNotFound)
+			break
+		}
+		status = Error(code.ServerErr).WithDetails(err)
 	}
-	response(c, http.StatusUnauthorized, res)
-	return
-}
+	resp.setBaseInfo(status)
 
-// 请求异常-500
-func Error(c *gin.Context, data interface{}) {
-	res := errorRes{
-		baseRes{
-			State: constant.ApiError,
-			Msg:   getMsg("Common.Api." + strconv.Itoa(constant.ApiError)),
-		},
-		data,
+	// 输出不同的http状态码
+	switch code.Code(status.GetCode()) {
+	case code.ApiNotFound: // 404
+		c.JSON(http.StatusNotFound, resp)
+	case code.ServerErr: // 500
+		c.JSON(http.StatusInternalServerError, resp)
+	case code.ParamBindErr, code.IllegalParams: // 参数非法
+		c.JSON(http.StatusBadRequest, resp)
+	case code.NoAuthorization, code.AuthorizationErr: // Authorization非法
+		c.JSON(http.StatusUnauthorized, resp)
+	case code.TokenNotFound, code.TokenMalformed, code.TokenExpired, code.TokenNotValidYet, code.TokenNotValid: // token非法
+		c.JSON(http.StatusUnauthorized, resp)
+	default:
+		c.JSON(http.StatusOK, resp)
 	}
-	response(c, http.StatusInternalServerError, res)
-	return
-}
-
-// 404
-func NotFound(c *gin.Context) {
-	res := baseRes{
-		State: constant.ApiNotFound,
-		Msg:   getMsg("Common.Api." + strconv.Itoa(constant.ApiNotFound)),
-	}
-	response(c, http.StatusNotFound, res)
 	return
 }
