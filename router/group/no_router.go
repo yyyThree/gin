@@ -1,5 +1,5 @@
 // 404路由
-package router
+package group
 
 import (
 	"gin/output"
@@ -7,11 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type noRouter struct {
+type NoRouter struct {
 }
 
-func (noRouter *noRouter) router(router *gin.Engine) {
-	router.NoRoute(func (c *gin.Context) {
+func (noRouter *NoRouter) Router(router *gin.Engine) {
+	router.NoRoute(func(c *gin.Context) {
 		output.Response(c, nil, output.Error(code.ApiNotFound))
 	})
 }

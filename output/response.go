@@ -5,6 +5,7 @@ import (
 	"errors"
 	"gin/output/code"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
@@ -77,6 +78,9 @@ func (resp *ErrResponse) setBaseInfo(status *Status) {
 
 // 统一输出方法
 func Response(c *gin.Context, resp ResponseI, err error) {
+	if resp == nil {
+		resp = &baseResponse{}
+	}
 	// 成功
 	if err == nil {
 		resp.setBaseInfo(Error(code.OK))
@@ -90,16 +94,18 @@ func Response(c *gin.Context, resp ResponseI, err error) {
 	switch v := err.(type) {
 	case *Status:
 		status = v
-	case *json.UnmarshalTypeError, *strconv.NumError:
+	case *json.UnmarshalTypeError, *strconv.NumError, validator.ValidationErrors:
 		status = Error(code.ParamBindErr).WithDetails(v.Error())
+	case *json.SyntaxError:
+		status = Error(code.IllegalJsonTypeString).WithDetails(v.Error())
 	case *mysql.MySQLError:
-		status = Error(code.MySqlErr).WithDetails(err)
+		status = Error(code.MySqlErr).WithDetails(v.Error())
 	default:
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			status = Error(code.RecordNotFound)
 			break
 		}
-		status = Error(code.ServerErr).WithDetails(err)
+		status = Error(code.ServerErr).WithDetails(v.Error())
 	}
 	resp.setBaseInfo(status)
 

@@ -19,8 +19,6 @@ import (
 
 	mapSet "github.com/deckarep/golang-set"
 	"github.com/satori/go.uuid"
-
-	"errors"
 )
 
 // 基于反射，校验任意值是否为空
@@ -80,38 +78,6 @@ func IsInt(i interface{}) bool {
 		//	data = int(v.Uint())
 	}
 	return false
-}
-
-// 判断某个值是否含在切片中
-func InArray(searchVal interface{}, searchSlice interface{}) (exist bool) {
-	exist = false
-	// index = -1
-	sValue := reflect.ValueOf(searchVal)
-
-	switch reflect.TypeOf(searchSlice).Kind() {
-	case reflect.Slice:
-		s := reflect.ValueOf(searchSlice)
-		for i := 0; i < s.Len(); i++ {
-			// 如果都是广义的int类型 则只进行值比较
-			ssValue := reflect.ValueOf(s.Index(i).Interface())
-			if sValue.Kind() != ssValue.Kind() && IsInt(sValue.Interface()) && IsInt(ssValue.Interface()) {
-				tmpSearchValue := sValue.Int()
-				tmpSearchSliceValue := s.Index(i).Int()
-				if reflect.DeepEqual(tmpSearchValue, tmpSearchSliceValue) == true {
-					// index = i
-					exist = true
-					return
-				}
-			} else {
-				if reflect.DeepEqual(searchVal, s.Index(i).Interface()) == true {
-					// index = i
-					exist = true
-					return
-				}
-			}
-		}
-	}
-	return
 }
 
 // 校验字段
@@ -227,20 +193,6 @@ func IsStruct(s interface{}) bool {
 	}
 
 	return v.Kind() == reflect.Struct
-}
-
-func IsSlice(s interface{}) bool {
-	v := reflect.ValueOf(s)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-
-	// uninitialized zero value of a struct
-	if v.Kind() == reflect.Invalid {
-		return false
-	}
-
-	return v.Kind() == reflect.Slice
 }
 
 // 结构体转map
@@ -403,7 +355,7 @@ func getStructKeyValues(s interface{}, fields []string) constant.BaseMap {
 		if columnName == "" {
 			columnName = sType.Field(i).Name
 		}
-		if !InArray(columnName, fields) {
+		if !InSlice(columnName, fields) {
 			continue
 		}
 		data[columnName] = sData.Field(i).Interface()
@@ -442,184 +394,6 @@ func GetInterfaceSliceByInt(i []int) (data []interface{}) {
 		data = append(data, v)
 	}
 	return
-}
-
-/**
- * @param desk [slice|map] 指针类型，方法最终的存储位置
- * @param input []struct，待转换的结构体切片
- * @param columnKey string
- * @param indexKey string
- */
-func StructColumn(desk, input interface{}, columnKey, indexKey string) (err error) {
-	deskValue := reflect.ValueOf(desk)
-	if deskValue.Kind() != reflect.Ptr {
-		return errors.New("desk must be ptr")
-	}
-
-	rv := reflect.ValueOf(input)
-	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
-		return errors.New("input must be map slice or array")
-	}
-
-	rt := reflect.TypeOf(input)
-	if rt.Elem().Kind() != reflect.Struct {
-		return errors.New("input's elem must be struct")
-	}
-
-	if len(indexKey) > 0 {
-		return structIndexColumn(desk, input, columnKey, indexKey)
-	}
-	return structColumn(desk, input, columnKey)
-}
-
-func structColumn(desk, input interface{}, columnKey string) (err error) {
-	if len(columnKey) == 0 {
-		return errors.New("columnKey cannot not be empty")
-	}
-
-	deskElemType := reflect.TypeOf(desk).Elem()
-	if deskElemType.Kind() != reflect.Slice {
-		return errors.New("desk must be slice")
-	}
-
-	rv := reflect.ValueOf(input)
-	rt := reflect.TypeOf(input)
-
-	var columnVal reflect.Value
-	deskValue := reflect.ValueOf(desk)
-	direct := reflect.Indirect(deskValue)
-
-	for i := 0; i < rv.Len(); i++ {
-		fmt.Println("rt.Elem", rv.Index(i), rt.Elem())
-		columnVal, err = findStructValByColumnKey(rv.Index(i), rt.Elem(), columnKey)
-		if err != nil {
-			return
-		}
-		if deskElemType.Elem().Kind() != columnVal.Kind() {
-			return errors.New(fmt.Sprintf("your slice must be []%s", columnVal.Kind()))
-		}
-
-		direct.Set(reflect.Append(direct, columnVal))
-	}
-	return
-}
-
-/**
-  待处理bug，结构体里的类型未展开，获取的Fields格式不全
-*/
-func findStructValByColumnKey(curVal reflect.Value, elemType reflect.Type, columnKey string) (columnVal reflect.Value, err error) {
-	columnExist := false
-	for i := 0; i < elemType.NumField(); i++ {
-		curField := curVal.Field(i)
-		fmt.Println("elemType.NumberFields", elemType.Field(i), elemType.Field(i).Name)
-		if elemType.Field(i).Name == columnKey {
-			columnExist = true
-			columnVal = curField
-			continue
-		}
-	}
-	if !columnExist {
-		return columnVal, errors.New(fmt.Sprintf("columnKey %s not found in %s's field", columnKey, elemType))
-	}
-	return
-}
-
-func structIndexColumn(desk, input interface{}, columnKey, indexKey string) (err error) {
-	deskValue := reflect.ValueOf(desk)
-	if deskValue.Elem().Kind() != reflect.Map {
-		return errors.New("desk must be map")
-	}
-	deskElem := deskValue.Type().Elem()
-	if len(columnKey) == 0 && deskElem.Elem().Kind() != reflect.Struct {
-		return errors.New(fmt.Sprintf("desk's elem expect struct, got %s", deskElem.Elem().Kind()))
-	}
-
-	rv := reflect.ValueOf(input)
-	rt := reflect.TypeOf(input)
-	elemType := rt.Elem()
-
-	var indexVal, columnVal reflect.Value
-	direct := reflect.Indirect(deskValue)
-	mapReflect := reflect.MakeMap(deskElem)
-	deskKey := deskValue.Type().Elem().Key()
-
-	for i := 0; i < rv.Len(); i++ {
-		curVal := rv.Index(i)
-		indexVal, columnVal, err = findStructValByIndexKey(curVal, elemType, indexKey, columnKey)
-		if err != nil {
-			return
-		}
-		if deskKey.Kind() != indexVal.Kind() {
-			return errors.New(fmt.Sprintf("cant't convert %s to %s, your map'key must be %s", indexVal.Kind(), deskKey.Kind(), indexVal.Kind()))
-		}
-		if len(columnKey) == 0 {
-			mapReflect.SetMapIndex(indexVal, curVal)
-			direct.Set(mapReflect)
-		} else {
-			if deskElem.Elem().Kind() != columnVal.Kind() {
-				return errors.New(fmt.Sprintf("your map must be map[%s]%s", indexVal.Kind(), columnVal.Kind()))
-			}
-			mapReflect.SetMapIndex(indexVal, columnVal)
-			direct.Set(mapReflect)
-		}
-	}
-	return
-}
-
-func findStructValByIndexKey(curVal reflect.Value, elemType reflect.Type, indexKey, columnKey string) (indexVal, columnVal reflect.Value, err error) {
-	indexExist := false
-	columnExist := false
-	for i := 0; i < elemType.NumField(); i++ {
-		curField := curVal.Field(i)
-		if elemType.Field(i).Name == indexKey {
-			switch curField.Kind() {
-			case reflect.String, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int, reflect.Float64, reflect.Float32:
-				indexExist = true
-				indexVal = curField
-			default:
-				return indexVal, columnVal, errors.New("indexKey must be int float or string")
-			}
-		}
-		if elemType.Field(i).Name == columnKey {
-			columnExist = true
-			columnVal = curField
-			continue
-		}
-	}
-	if !indexExist {
-		return indexVal, columnVal, errors.New(fmt.Sprintf("indexKey %s not found in %s's field", indexKey, elemType))
-	}
-	if len(columnKey) > 0 && !columnExist {
-		return indexVal, columnVal, errors.New(fmt.Sprintf("columnKey %s not found in %s's field", columnKey, elemType))
-	}
-	return
-}
-
-// slice 去重
-func SliceUnique(sliceData interface{}) (ret []interface{}) {
-	if reflect.TypeOf(sliceData).Kind() != reflect.Slice {
-		fmt.Printf("<SliceRemoveDuplicate> <a> is not slice but %T\n", sliceData)
-		return ret
-	}
-	sliceValue := reflect.ValueOf(sliceData)
-	var isExist = false
-	for i := 0; i < sliceValue.Len(); i++ {
-		isExist = false
-		if len(ret) == 0 {
-			ret = append(ret, sliceValue.Index(i).Interface())
-			continue
-		}
-		for j := 0; j < len(ret); j++ {
-			if reflect.DeepEqual(sliceValue.Index(i).Interface(), ret[j]) {
-				isExist = true
-				continue
-			}
-		}
-		if !isExist {
-			ret = append(ret, sliceValue.Index(i).Interface())
-		}
-	}
-	return ret
 }
 
 // 添加token参数

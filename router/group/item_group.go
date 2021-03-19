@@ -1,5 +1,5 @@
 // item接口子路由
-package router
+package group
 
 import (
 	"gin/controller"
@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type itemGroup struct {
+type Item struct {
 }
 
-func (itemGroup *itemGroup) router(router *gin.Engine) {
+func (item *Item) Router(router *gin.Engine) {
 	itemRouter := router.Group("/item")
 	itemRouter.Use(new(middleware.Item).Handler())
 	itemController := new(controller.Item)

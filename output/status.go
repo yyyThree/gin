@@ -51,7 +51,7 @@ func (e *Status) GetMessage() string {
 }
 
 func (e *Status) GetDetails() []interface{} {
-	if e == nil{
+	if e == nil {
 		return nil
 	}
 	return e.Details

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"gin/constant"
+	"gin/output"
 	"gin/output/code"
 	"github.com/dgrijalva/jwt-go"
 	"strings"
@@ -87,9 +88,9 @@ func (token *token) Encode() (string, error) {
 }
 
 // 解析token
-func (token *token) Decode() (data constant.BaseMap, errCode code.Code) {
+func (token *token) Decode() (data constant.BaseMap, err error) {
 	if len(token.token) == 0 {
-		errCode = code.TokenNotFound
+		err = output.Error(code.TokenNotFound)
 		return
 	}
 
@@ -99,13 +100,13 @@ func (token *token) Decode() (data constant.BaseMap, errCode code.Code) {
 	if err != nil {
 		if ve, ok := err.(*jwt.ValidationError); ok {
 			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-				errCode = code.TokenMalformed
+				err = output.Error(code.TokenMalformed)
 			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
-				errCode = code.TokenExpired
+				err = output.Error(code.TokenExpired)
 			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-				errCode = code.TokenNotValidYet
+				err = output.Error(code.TokenNotValidYet)
 			} else {
-				errCode = code.TokenNotValid
+				err = output.Error(code.TokenNotValid)
 			}
 		}
 		return
@@ -118,29 +119,29 @@ func (token *token) Decode() (data constant.BaseMap, errCode code.Code) {
 			return
 		}
 	}
-	errCode = code.TokenNotValid
+	err = output.Error(code.TokenNotValid)
 	return
 }
 
 // 纯解析token，不做任何校验
-func (token *token) DecodeSegment() (data constant.BaseMap, errCode code.Code) {
+func (token *token) DecodeSegment() (data constant.BaseMap, err error) {
 	if len(token.token) == 0 {
 		return
 	}
 	tokenSplit := strings.Split(token.token, ".")
 	if len(tokenSplit) != 3 {
-		errCode = code.TokenNotFound
+		err = output.Error(code.TokenMalformed)
 		return
 	}
 	tokenData, err := jwt.DecodeSegment(tokenSplit[1])
 	if len(tokenData) == 0 || err != nil {
-		errCode = code.TokenNotFound
+		err = output.Error(code.TokenMalformed)
 		return
 	}
 
 	tokenClaims := claims{}
 	if err = json.Unmarshal(tokenData, &tokenClaims); err != nil {
-		errCode = code.TokenNotValid
+		err = output.Error(code.TokenNotValid)
 		return
 	}
 

@@ -11,10 +11,10 @@ var testTokenString = ""
 var testTokenDecode = token.New()
 var secret = "token"
 var data = map[string]interface{}{
-	"appKey": "testAppKey",
+	"appKey":  "testAppKey",
 	"channel": 2,
-	"data1": 1,
-	"data2": "data2",
+	"data1":   1,
+	"data2":   "data2",
 }
 
 func TestToken_Encode(t *testing.T) {
@@ -32,17 +32,17 @@ func TestToken_Decode(t *testing.T) {
 	testTokenDecode.SetSecret(secret)
 	testTokenDecode.SetToken(testTokenString)
 
-	testTokenData, state := testTokenDecode.Decode()
-	if state != 1 {
-		t.Fatal("token解析失败", state)
+	testTokenData, err := testTokenDecode.Decode()
+	if err != nil {
+		t.Fatal("token解析失败", err)
 	}
 	fmt.Println("token解析成功\n", testTokenData)
 }
 
 func TestToken_DecodeSegment(t *testing.T) {
-	testTokenData, state := testTokenDecode.DecodeSegment()
-	if state != 1 {
-		t.Fatal("token直接解析失败", state)
+	testTokenData, err := testTokenDecode.DecodeSegment()
+	if err != nil {
+		t.Fatal("token直接解析失败", err)
 	}
 	fmt.Println("token直接解析成功\n", testTokenData)
 }

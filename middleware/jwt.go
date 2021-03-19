@@ -54,10 +54,9 @@ func checkToken(c *gin.Context) (data constant.BaseMap, err error) {
 	tokenStruct := tokenLibrary.New()
 	tokenStruct.SetSecret(config.Config.App.TokenSecret)
 	tokenStruct.SetToken(token)
-	data, errCode := tokenStruct.Decode()
+	data, err = tokenStruct.Decode()
 
-	if errCode > 0 {
-		err = output.Error(errCode)
+	if err != nil {
 		return
 	}
 

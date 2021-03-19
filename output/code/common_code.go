@@ -16,6 +16,7 @@ const (
 
 	ParamBindErr  Code = 2001 // 参数绑定失败
 	IllegalParams Code = 2002 // 参数非法
+	IllegalJsonTypeString Code = 2003 // 非法json字符串
 
 	RecordNotFound Code = 3001 // 未查询到记录
 

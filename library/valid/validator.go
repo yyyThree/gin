@@ -5,12 +5,18 @@ import (
 	"gin/helper"
 	"github.com/asaskevich/govalidator"
 	"reflect"
+	"regexp"
 )
 
 var errMsgMap = constant.StringMap{
-	"NotEmpty":          "校验不为空失败",
-	"IsIn":              "校验参数范围失败",
-	"IsAllInStruct":     "校验参数存在于结构体内失败",
+	"NotEmpty":           "校验不为空失败",
+	"IsIn":               "校验参数范围失败",
+	"IsAllInStruct":      "校验参数存在于结构体内失败",
+	"IsMobile":           "校验手机号失败",
+	"GreaterThan":        "校验值大小失败",
+	"EqualOrGreaterThan": "校验值大小失败",
+	"LessThan":           "校验值大小失败",
+	"EqualOrLessThan":    "校验值大小失败",
 	"Contains":          "校验字符串包含关系失败",
 	"HasLowerCase":      "校验存在小写字母失败",
 	"HasUpperCase":      "校验存在大写字母失败",
@@ -38,6 +44,9 @@ var errMsgMap = constant.StringMap{
 	"StringLength":      "校验字符串长度失败",
 	"MinStringLength":   "校验字符串长度最小值失败",
 	"MaxStringLength":   "校验字符串长度最大值失败",
+	"IsInt": "校验数字类型失败",
+	"Gt": "校验数字值大于失败",
+	"Lt": "校验数字值小于失败",
 }
 
 // =============自定义方法=============
@@ -87,6 +96,62 @@ func (myValid *myValid) IsAllInStruct(containStruct interface{}) *myValid {
 			return false
 		}
 		return true
+	}
+	return myValid
+}
+
+// 校验是否是手机号
+func (myValid *myValid) IsMobile() *myValid {
+	myValid.validations["IsMobile"] = func() bool {
+		matched, _ := regexp.MatchString(`^(1[0-9]{10})$`, govalidator.ToString(myValid.value))
+		return matched
+	}
+	return myValid
+}
+
+func (myValid *myValid) IsInt() *myValid {
+	myValid.validations["IsInt"] = func() bool {
+		return helper.IsInt(myValid.value)
+	}
+	return myValid
+}
+
+// 校验大于
+func (myValid *myValid) GreaterThan(i interface{}) *myValid {
+	myValid.validations["GreaterThan"] = func() bool {
+		v1, _ := govalidator.ToFloat(myValid.value)
+		v2, _ := govalidator.ToFloat(i)
+		return v1 > v2
+	}
+	return myValid
+}
+
+// 校验大于等于
+func (myValid *myValid) EqualOrGreaterThan(i interface{}) *myValid {
+	myValid.validations["EqualOrGreaterThan"] = func() bool {
+		v1, _ := govalidator.ToFloat(myValid.value)
+		v2, _ := govalidator.ToFloat(i)
+		return v1 >= v2
+	}
+	return myValid
+}
+
+// 校验小于
+func (myValid *myValid) LessThan(i interface{}) *myValid {
+	myValid.validations["LessThan"] = func() bool {
+		v1, _ := govalidator.ToFloat(myValid.value)
+		v2, _ := govalidator.ToFloat(i)
+		return v1 < v2
+	}
+	return myValid
+}
+
+// 校验小于等于
+func (myValid *myValid) EqualOrLessThan(i interface{}) *myValid {
+	myValid.validations["EqualOrLessThan"] = func() bool {
+		v1, _ := govalidator.ToFloat(myValid.value)
+		v2, _ := govalidator.ToFloat(i)
+		return v1 <= v2
 	}
 	return myValid
 }

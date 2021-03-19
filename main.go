@@ -6,16 +6,23 @@ import (
 	"gin/model/db"
 	"gin/router"
 	"github.com/braintree/manners"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
 )
 
 // 初始化操作
-func init()  {
+func init() {
 	// 加载配置
 	config.Load()
 	// 加载数据库配置
 	db.Load()
+	// 设置运行环境
+	if config.Config.App.Env == "debug" {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 }
 
 // 启动服务器

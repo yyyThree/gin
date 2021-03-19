@@ -6,6 +6,8 @@ import (
 	"gin/config"
 	"gin/constant"
 	"gin/helper"
+	"gin/output"
+	"gin/output/code"
 	"github.com/rubenv/sql-migrate"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -60,16 +62,20 @@ func open(db string) error {
 			dbConfig.Port,
 			dbName,
 		)
+		dbLoggerConfig := logger.Config{
+			SlowThreshold: time.Second,  // 慢 SQL 阈值
+			LogLevel:      logger.Error, // Log level
+		}
+		if config.IsDev() {
+			dbLoggerConfig.LogLevel = logger.Info
+		}
 		dblink, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 			NamingStrategy: schema.NamingStrategy{
 				SingularTable: true, // 使用单数表名，启用该选项后，`Item` 表将是`item`
 			},
 			Logger: logger.New(
 				log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-				logger.Config{
-					SlowThreshold: time.Second,   // 慢 SQL 阈值
-					LogLevel:      logger.Info, // Log level
-				},
+				dbLoggerConfig,
 			),
 		})
 		if err != nil {
@@ -103,25 +109,25 @@ func getDB(db string, dbName string) (*gorm.DB, error) {
 	if dbLink, ok := dbLinks[db][dbName]; ok {
 		return dbLink, nil
 	}
-	return nil, errors.New("数据库连接失败")
+	return nil, output.Error(code.MySqlErr)
 }
 
-func GetMasterDB(dbName string) *gorm.DB {
-	dblink, _ := getDB("master", dbName)
-	return dblink
+func GetMasterDB(dbName string) (*gorm.DB, error) {
+	dblink, err := getDB("master", dbName)
+	return dblink, err
 }
 
-func GetSlaveDB(dbName string) *gorm.DB {
-	dblink, _ := getDB("slave", dbName)
-	return dblink
+func GetSlaveDB(dbName string) (*gorm.DB, error) {
+	dblink, err := getDB("slave", dbName)
+	return dblink, err
 }
 
 // 执行数据库迁移
-func dbMigrate()  {
+func dbMigrate() {
 	migrations := &migrate.FileMigrationSource{
 		Dir: "migration",
 	}
-	dblink := GetMasterDB(constant.DbServiceItems)
+	dblink, _ := GetMasterDB(constant.DbServiceItems)
 	sqlDB, _ := dblink.DB()
 	_, err := migrate.Exec(sqlDB, "mysql", migrations, migrate.Up)
 	if err != nil {

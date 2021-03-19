@@ -17,6 +17,7 @@ type configList struct {
 }
 
 type app struct {
+	Env         string `mapstructure:"env"`
 	TokenSecret string `mapstructure:"token_secret"`
 }
 
@@ -27,13 +28,13 @@ type http struct {
 }
 
 type Database struct {
-	Host               string `mapstructure:"host"`
-	Port               string `mapstructure:"port"`
-	User               string `mapstructure:"user"`
-	Password           string `mapstructure:"password"`
-	MaxOpenConnections int    `mapstructure:"max_open_connections"`
-	MaxIdleConnections int    `mapstructure:"max_idle_connections"`
-	MaxConnectionIdleTime        int    `mapstructure:"max_connection_idle_time"`
+	Host                  string `mapstructure:"host"`
+	Port                  string `mapstructure:"port"`
+	User                  string `mapstructure:"user"`
+	Password              string `mapstructure:"password"`
+	MaxOpenConnections    int    `mapstructure:"max_open_connections"`
+	MaxIdleConnections    int    `mapstructure:"max_idle_connections"`
+	MaxConnectionIdleTime int    `mapstructure:"max_connection_idle_time"`
 }
 
 type databases struct {
@@ -42,7 +43,7 @@ type databases struct {
 }
 
 var (
-	load  sync.Once // 确保配置文件仅需加载一次
+	load   sync.Once // 确保配置文件仅需加载一次
 	Config configList
 )
 
@@ -74,4 +75,9 @@ func Load() {
 		err = viper.Unmarshal(&Config)
 		unmarshalError(err)
 	})
+}
+
+// 是否是测试环境
+func IsDev() bool {
+	return Config.App.Env == "debug"
 }

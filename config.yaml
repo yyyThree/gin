@@ -1,10 +1,10 @@
 app:
+  env: debug
   token_secret: token
 http:
   port: 10080
   read_time_out: 10
   write_time_out: 10
-language: zh
 db:
   master:
     host: 192.168.3.53

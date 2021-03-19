@@ -3,12 +3,37 @@ package dao
 import (
 	"fmt"
 	"gin/constant"
+	"gin/model/db"
 	"gorm.io/gorm"
 	"strings"
 )
 
 type dao struct {
-	*gorm.DB
+	Tx *gorm.DB
+	DbName string
+}
+
+// 获取数据库连接（默认master）
+func (dao *dao) GetDb() (*gorm.DB, error) {
+	if dao.Tx != nil {
+		return dao.Tx, nil
+	}
+	return db.GetMasterDB(dao.DbName)
+}
+
+// 获取数据库连接（slave）
+func (dao *dao) GetSlaveDb() (*gorm.DB, error) {
+	return db.GetSlaveDB(dao.DbName)
+}
+
+func GetTx(txs ...*gorm.DB) *gorm.DB {
+	var tx *gorm.DB
+	if len(txs) != 0 {
+		tx = txs[0]
+	} else {
+		tx = nil
+	}
+	return tx
 }
 
 // 封装whereIn
@@ -46,4 +71,3 @@ func (dao *dao) OrderBy(sql *gorm.DB, orderBy constant.SqlOrderByMap) *gorm.DB {
 	}
 	return sql
 }
-
