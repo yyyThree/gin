@@ -14,6 +14,7 @@ type configList struct {
 	Http     http      `mapstructure:"http"`
 	Language string    `mapstructure:"language"`
 	Db       databases `mapstructure:"db"`
+	Redis    redis     `mapstructure:"redis"`
 }
 
 type app struct {
@@ -22,9 +23,10 @@ type app struct {
 }
 
 type http struct {
-	Port         int `mapstructure:"port"`
-	ReadTimeout  int `mapstructure:"read_time_out"`
-	WriteTimeout int `mapstructure:"write_time_out"`
+	Port            int `mapstructure:"port"`
+	ReadTimeout     int `mapstructure:"read_time_out"`
+	WriteTimeout    int `mapstructure:"write_time_out"`
+	ShutdownTimeOut int `mapstructure:"shutdown_time_out"`
 }
 
 type Database struct {
@@ -40,6 +42,16 @@ type Database struct {
 type databases struct {
 	Master Database `mapstructure:"master"`
 	Slave  Database `mapstructure:"slave"`
+}
+
+type redis struct {
+	Address        string `mapstructure:"address"`
+	Password       string `mapstructure:"password"`
+	DB             int    `mapstructure:"db"`
+	ConnectTimeout int    `mapstructure:"connect_timeout"`
+	ReadTimeout    int    `mapstructure:"read_timeout"`
+	WriteTimeout   int    `mapstructure:"write_timeout"`
+	PoolSize       int    `mapstructure:"pool_size"`
 }
 
 var (

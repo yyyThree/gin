@@ -18,7 +18,7 @@ func (item *Item) Router(router *gin.Engine) {
 		itemRouter.POST("/add", itemController.Add)
 		itemRouter.PUT("/update", itemController.Update)
 		itemRouter.DELETE("/delete", itemController.Delete)
-		itemRouter.PUT("/recover", itemController.Recover)
+		itemRouter.PATCH("/recover", itemController.Recover)
 		itemRouter.GET("/get", itemController.Get)
 		itemRouter.GET("/search", itemController.Search)
 	}

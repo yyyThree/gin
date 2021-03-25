@@ -92,7 +92,6 @@ func (item *Item) Get(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("fields", params.Fields, data, field.GetItemFields())
 	output.Response(c, &output.SucResponse{
 		Data: helper.FilterStructByFields(data, params.Fields, field.GetItemFields()),
 	}, nil)

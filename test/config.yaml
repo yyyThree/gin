@@ -5,7 +5,6 @@ http:
   port: 10080
   read_time_out: 10
   write_time_out: 10
-  shutdown_time_out: 10
 db:
   master:
     host: 192.168.3.53

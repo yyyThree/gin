@@ -390,7 +390,7 @@ func (item *Item) checkDelete(params param.ItemDelete) error {
 	myValid := valid.New()
 	myValid.Append(valid.One("item_id", params.ItemId).NotEmpty().MaxStringLength(64))
 	myValid.Append(valid.One("is_final_delete", params.IsFinalDelete).NotEmpty())
-	if helper.IsEmpty(params.IsFinalDelete) {
+	if !helper.IsEmpty(params.IsFinalDelete) {
 		myValid.Append(valid.One("is_final_delete", *params.IsFinalDelete).IsIn([]int{constant.ItemDelete, constant.ItemFinalDelete}))
 	}
 

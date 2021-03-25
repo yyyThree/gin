@@ -21,3 +21,7 @@ db_info:
   password : fuyuan1906
   database : service_items_go
   type: 0 # 数据库类型:0:mysql , 1:sqlite , 2:mssql
+self_type_define: # Custom data type mapping
+  datetime: DateTime
+out_file_name: "" # Custom build file name
+web_tag_type: 1 # json tag 0: Small Camel-Case 1: _

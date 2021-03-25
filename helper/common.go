@@ -346,8 +346,11 @@ func getStructKeyValues(s interface{}, fields []string) constant.BaseMap {
 		return data
 	}
 
-	sType := reflect.TypeOf(s)
 	sData := reflect.ValueOf(s)
+	if sData.Kind() == reflect.Ptr {
+		sData = sData.Elem()
+	}
+	sType := sData.Type()
 
 	for i := 0; i < sType.NumField(); i++ {
 		jsonTag := sType.Field(i).Tag.Get("json")

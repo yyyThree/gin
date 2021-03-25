@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"gin/config"
 	"gin/library/token"
 	"testing"
 )
@@ -9,7 +10,6 @@ import (
 var testTokenEncode = token.New()
 var testTokenString = ""
 var testTokenDecode = token.New()
-var secret = "token"
 var data = map[string]interface{}{
 	"appKey":  "testAppKey",
 	"channel": 2,
@@ -17,9 +17,13 @@ var data = map[string]interface{}{
 	"data2":   "data2",
 }
 
+func init() {
+	config.Load()
+}
+
 func TestToken_Encode(t *testing.T) {
 	testTokenEncode.SetData(data)
-	testTokenEncode.SetSecret(secret)
+	testTokenEncode.SetSecret(config.Config.App.TokenSecret)
 	tokenString, err := testTokenEncode.Encode()
 	if err != nil {
 		t.Fatal("token生成失败", err)
@@ -29,7 +33,7 @@ func TestToken_Encode(t *testing.T) {
 }
 
 func TestToken_Decode(t *testing.T) {
-	testTokenDecode.SetSecret(secret)
+	testTokenDecode.SetSecret(config.Config.App.TokenSecret)
 	testTokenDecode.SetToken(testTokenString)
 
 	testTokenData, err := testTokenDecode.Decode()
