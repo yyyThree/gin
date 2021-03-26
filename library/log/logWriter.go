@@ -1,7 +1,6 @@
 package log
 
 import (
-	"fmt"
 	"gin/config"
 	"gin/helper"
 	"gin/library/redis"
@@ -38,7 +37,6 @@ func (r *redisWriter) Write(b []byte) (int, error) {
 	k := config.Config.Log.RedisKey + "." + helper.FormatDateNow()
 	s := string(b)
 	s = strings.TrimRight(s, "\n")
-	fmt.Println(111, s)
 	n, err := redis.GetConn().RPush(redis.GetCtx(), k, s).Result()
 	return int(n), err
 }
