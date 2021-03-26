@@ -15,6 +15,7 @@ type configList struct {
 	Language string    `mapstructure:"language"`
 	Db       databases `mapstructure:"db"`
 	Redis    redis     `mapstructure:"redis"`
+	Log      log       `mapstructure:"log"`
 }
 
 type app struct {
@@ -52,6 +53,10 @@ type redis struct {
 	ReadTimeout    int    `mapstructure:"read_timeout"`
 	WriteTimeout   int    `mapstructure:"write_timeout"`
 	PoolSize       int    `mapstructure:"pool_size"`
+}
+
+type log struct {
+	Dir string `mapstructure:"dir"`
 }
 
 var (

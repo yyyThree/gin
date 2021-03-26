@@ -24,10 +24,12 @@ db:
     max_idle_connections: 2
     max_connection_idle_time: 300
 redis:
-  address: "192.168.3.53:8003"
+  address: 192.168.3.53:8003
   password: ""
   db: 0
   connect_timeout: 10
   read_timeout: 5
   write_timeout: 5
   pool_size: 5
+log:
+  dir: ./log/

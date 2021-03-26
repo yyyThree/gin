@@ -9,16 +9,13 @@ import (
 	"gin/constant"
 	"gin/model/entity"
 	"gin/model/param"
+	mapSet "github.com/deckarep/golang-set"
 	"github.com/gin-gonic/gin"
+	"github.com/satori/go.uuid"
 	"io/ioutil"
-	"math/rand"
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
-
-	mapSet "github.com/deckarep/golang-set"
-	"github.com/satori/go.uuid"
 )
 
 // 基于反射，校验任意值是否为空
@@ -52,12 +49,6 @@ func HasAnyEmpty(list ...interface{}) bool {
 		}
 	}
 	return false
-}
-
-// 生成范围随机值
-func Rand(min, max int) int {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return r.Intn(max-min) + min
 }
 
 // 断言是否是string类型

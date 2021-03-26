@@ -4,6 +4,7 @@ import (
 	"gin/constant"
 	"gin/dao"
 	"gin/helper"
+	"gin/library/log"
 	"gin/library/valid"
 	"gin/model/entity"
 	"gin/model/field"
@@ -273,8 +274,19 @@ func (item *Item) Delete(params param.ItemDelete) (err error) {
 	}, 1)
 	if err != nil {
 		err = output.Error(code.ItemDelFail)
+		log.New().Error("itemDelete", constant.BaseMap{
+			"appkey":  params.AppKey,
+			"channel": params.Channel,
+			"item_id": params.ItemId,
+			"err":     err,
+		})
 		return
 	}
+	log.New().Info("itemDelete", constant.BaseMap{
+		"appkey":  params.AppKey,
+		"channel": params.Channel,
+		"item_id": params.ItemId,
+	})
 
 	// step4 删除sku
 	go func() {
@@ -322,8 +334,19 @@ func (item *Item) Recover(params param.ItemRecover) (err error) {
 	}, 1)
 	if err != nil {
 		err = output.Error(code.ItemDelFail)
+		log.New().Error("itemRecover", constant.BaseMap{
+			"appkey":  params.AppKey,
+			"channel": params.Channel,
+			"item_id": params.ItemId,
+			"err":     err,
+		})
 		return
 	}
+	log.New().Info("itemRecover", constant.BaseMap{
+		"appkey":  params.AppKey,
+		"channel": params.Channel,
+		"item_id": params.ItemId,
+	})
 
 	// step4 恢复sku
 	go func() {
