@@ -32,4 +32,6 @@ redis:
   write_timeout: 5
   pool_size: 5
 log:
-  dir: ./log/
+  out: file # file 文件 stdout 屏幕 redis redis队列
+  dir: ./log/ # out 为 file 时，需要提供存储的文件夹
+  redisKey: go # out 为 redis 时，需要redis列表的key

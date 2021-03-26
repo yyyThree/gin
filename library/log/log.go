@@ -3,11 +3,8 @@ package log
 import (
 	"gin/config"
 	"gin/constant"
-	"gin/helper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
-	"strings"
 	"time"
 )
 
@@ -31,7 +28,11 @@ func getLogger() *zap.SugaredLogger {
 	writeSyncer := getLogWriter()
 	encoder := getEncoder()
 	// Log Level 哪种级别及以上的日志会被写入
-	core := zapcore.NewCore(encoder, writeSyncer, zapcore.DebugLevel)
+	level := zapcore.InfoLevel
+	if config.IsDev() {
+		level = zapcore.DebugLevel
+	}
+	core := zapcore.NewCore(encoder, writeSyncer, level)
 	// AddStacktrace 哪种级别及以上的日志被写入堆栈信息
 	logger := zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel)).Sugar()
 	return logger
@@ -55,20 +56,6 @@ func getEncoder() zapcore.Encoder {
 		},
 	}
 	return zapcore.NewJSONEncoder(zapConfig)
-}
-
-// 日志输出
-func getLogWriter() zapcore.WriteSyncer {
-	// 日志切割设置，按 年/月/日 切割
-	file := strings.TrimRight(config.Config.Log.Dir, "/") + "/" + helper.FormatDateNowBySlash() + ".log"
-	lumberJackLogger := &lumberjack.Logger{
-		Filename:   file,  // 日志文件位置
-		MaxSize:    500,   // 日志文件最大大小(MB)
-		MaxBackups: 2,     // 保留旧文件最大数量
-		MaxAge:     0,     // 保留旧文件最长天数
-		Compress:   false, // 是否压缩旧文件
-	}
-	return zapcore.AddSync(lumberJackLogger)
 }
 
 func (log *log) Debug(msg string, data ...constant.BaseMap) {

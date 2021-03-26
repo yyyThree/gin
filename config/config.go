@@ -56,7 +56,9 @@ type redis struct {
 }
 
 type log struct {
-	Dir string `mapstructure:"dir"`
+	Out      string `mapstructure:"out"`
+	Dir      string `mapstructure:"dir"`
+	RedisKey string `mapstructure:"redisKey"`
 }
 
 var (
