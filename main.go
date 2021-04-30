@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gin/config"
-	"gin/model/db"
 	"gin/router"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
@@ -16,16 +14,7 @@ import (
 
 // 初始化操作
 func init() {
-	// 加载配置
-	config.Load()
-	// 加载数据库配置
-	db.Load()
-	// 设置运行环境
-	if config.Config.App.Env == "debug" {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
+	initService()
 }
 
 // 启动服务器

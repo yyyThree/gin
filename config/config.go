@@ -12,10 +12,10 @@ import (
 type configList struct {
 	App      app       `mapstructure:"app"`
 	Http     http      `mapstructure:"http"`
-	Language string    `mapstructure:"language"`
 	Db       databases `mapstructure:"db"`
 	Redis    redis     `mapstructure:"redis"`
 	Log      log       `mapstructure:"log"`
+	Rabbitmq rabbitmq  `mapstructure:"rabbitmq"`
 }
 
 type app struct {
@@ -59,6 +59,22 @@ type log struct {
 	Out      string `mapstructure:"out"`
 	Dir      string `mapstructure:"dir"`
 	RedisKey string `mapstructure:"redisKey"`
+}
+
+type rabbitmq struct {
+	Host          string `mapstructure:"host"`
+	Port          int    `mapstructure:"port"`
+	User          string `mapstructure:"user"`
+	Password      string `mapstructure:"password"`
+	Vhost         string `mapstructure:"vhost"`
+	AdminUser     string `mapstructure:"admin_user"`
+	AdminPassword string `mapstructure:"admin_password"`
+	ExDirect      string `mapstructure:"ex_direct"`
+	ExTopic       string `mapstructure:"ex_topic"`
+	ExDeathLetter string `mapstructure:"ex_death_letter"`
+	TtlQueueMsg   int    `mapstructure:"ttl_queue_msg"`
+	TtlMsg        int    `mapstructure:"ttl_msg"`
+	LogDir        string `mapstructure:"log_dir""`
 }
 
 var (

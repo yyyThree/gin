@@ -3,11 +3,11 @@ package middleware
 
 import (
 	"fmt"
-	"gin/constant"
 	"gin/library/log"
 	"gin/output"
 	"gin/output/code"
 	"github.com/gin-gonic/gin"
+	"github.com/yyyThree/zap"
 	"runtime"
 )
 
@@ -25,7 +25,7 @@ func (panic *Panic) Handler() gin.HandlerFunc {
 				var buf [4096]byte
 				n := runtime.Stack(buf[:], false)
 				fmt.Printf("==> %s\n", string(buf[:n]))
-				log.New().Panic("panic", constant.BaseMap{
+				log.GetLogger().Panic("panic", zap.BaseMap{
 					"err": e,
 				})
 				output.Response(c, nil, output.Error(code.ServerErr).WithDetails(e))

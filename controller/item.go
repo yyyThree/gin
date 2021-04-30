@@ -3,12 +3,14 @@ package controller
 import (
 	"fmt"
 	"gin/helper"
+	"gin/library/rabbitmq/common"
 	"gin/model/field"
 	"gin/model/param"
 	"gin/output"
 	"gin/output/code"
 	"gin/service"
 	"github.com/gin-gonic/gin"
+	"github.com/yyyThree/rabbitmq"
 )
 
 type Item struct {
@@ -16,6 +18,10 @@ type Item struct {
 
 // 添加商品
 func (item *Item) Add(c *gin.Context) {
+	rabbitmq.PublishWithConfirm(common.ItemAdd, "test1")
+	rabbitmq.Publish(common.ItemAdd, "test2")
+
+	return
 	params := param.ItemAdd{}
 	if err := c.ShouldBind(&params); err != nil {
 		output.Response(c, nil, output.Error(code.ParamBindErr))

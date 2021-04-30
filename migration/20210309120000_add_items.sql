@@ -1,8 +1,6 @@
 -- +migrate Up
 -- SQL in section 'Up' is executed when this migration is applied
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 --
@@ -115,7 +113,6 @@ ALTER TABLE `item_searches`
 --
 ALTER TABLE `skus`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-COMMIT;
 
 -- +migrate Down
 -- SQL section 'Down' is executed when this migration is rolled back

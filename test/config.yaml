@@ -5,6 +5,7 @@ http:
   port: 10080
   read_time_out: 10
   write_time_out: 10
+  shutdown_time_out: 10
 db:
   master:
     host: 192.168.3.53
@@ -23,10 +24,27 @@ db:
     max_idle_connections: 2
     max_connection_idle_time: 300
 redis:
-  address: "192.168.3.53:8003"
+  address: 192.168.3.53:8003
   password: ""
   db: 0
   connect_timeout: 10
   read_timeout: 5
   write_timeout: 5
   pool_size: 5
+log:
+  out: file # file 文件 stdout 屏幕 redis redis队列
+  dir: ./log/ # out 为 file 时，需要提供存储的文件夹
+  redisKey: go # out 为 redis 时，需要redis列表的key
+rabbitmq:
+  host: 192.168.3.53
+  port: 5673
+  user: go
+  password: go
+  vhost: go
+  admin_user: goadmin
+  admin_password: goadmin
+  ex_direct: go.direct
+  ex_topic: go.topic
+  ex_death_letter: go.dl
+  ttl_queue_msg: 86400
+  ttl_msg: 86400

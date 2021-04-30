@@ -11,6 +11,7 @@ import (
 	"gin/model/param"
 	"gin/output"
 	"gin/output/code"
+	"github.com/yyyThree/zap"
 	"strings"
 )
 
@@ -274,7 +275,7 @@ func (item *Item) Delete(params param.ItemDelete) (err error) {
 	}, 1)
 	if err != nil {
 		err = output.Error(code.ItemDelFail)
-		log.New().Error("itemDelete", constant.BaseMap{
+		log.GetLogger().Error("itemDelete", zap.BaseMap{
 			"appkey":  params.AppKey,
 			"channel": params.Channel,
 			"item_id": params.ItemId,
@@ -282,7 +283,7 @@ func (item *Item) Delete(params param.ItemDelete) (err error) {
 		})
 		return
 	}
-	log.New().Info("itemDelete", constant.BaseMap{
+	log.GetLogger().Info("itemDelete", zap.BaseMap{
 		"appkey":  params.AppKey,
 		"channel": params.Channel,
 		"item_id": params.ItemId,
@@ -334,7 +335,7 @@ func (item *Item) Recover(params param.ItemRecover) (err error) {
 	}, 1)
 	if err != nil {
 		err = output.Error(code.ItemDelFail)
-		log.New().Error("itemRecover", constant.BaseMap{
+		log.GetLogger().Error("itemRecover", zap.BaseMap{
 			"appkey":  params.AppKey,
 			"channel": params.Channel,
 			"item_id": params.ItemId,
@@ -342,7 +343,7 @@ func (item *Item) Recover(params param.ItemRecover) (err error) {
 		})
 		return
 	}
-	log.New().Info("itemRecover", constant.BaseMap{
+	log.GetLogger().Info("itemRecover", zap.BaseMap{
 		"appkey":  params.AppKey,
 		"channel": params.Channel,
 		"item_id": params.ItemId,
