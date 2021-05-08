@@ -23,8 +23,8 @@
 - 支持自动生成数据库结构体  
 - 支持数据库迁移
 - 支持统一接口参数校验  
-- 支持 [zap](https://github.com/yyyThree/zap) 日志收集
-- 支持 [rabbitmq](https://github.com/yyyThree/rabbitmq) 使用
+- 支持<a href="https://github.com/yyyThree/zap" target="_blank">zap</a>日志收集
+- 支持<a href="https://github.com/yyyThree/zap" target="_blank">rabbitmq</a>使用
 - 支持`redis`使用 
 - 支持`viper`配置文件解析
 - 支持单元测试  
@@ -155,7 +155,7 @@ rabbitmq:
   ttl_msg: 86400000 # 每条消息的有效期(ms)
   log_dir: ./log/rabbitmq # 日志存储文件夹地址
 ```
-### 二、路由（`router/group`）
+### 二、路由（`router/group/`）
 ```go
 func (item *Item) Router(router *gin.Engine) {
 	itemRouter := router.Group("/item")
@@ -336,7 +336,7 @@ func (itemSearch *ItemSearch) Search(params *param.ItemSearch) (data []ItemDetai
 	return
 }
 ```
-### 六、数据库结构体文件生成（`model/entity`）
+### 六、数据库结构体文件生成（`model/entity/`）
 ```go
 // 提前安装gormt：go get -u -v github.com/xxjwxc/gormt@master
 
@@ -491,7 +491,7 @@ fmt.Println("redis设置成功\n", res)
         }
     )
     ```
-3. 定义队列消费者(`library/subscriber`)
+3. 定义队列消费者(`library/subscriber/`)
     ```go
     // 同步商品搜索数据
     func SyncItemSearch() {

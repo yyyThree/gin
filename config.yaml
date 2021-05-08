@@ -1,51 +1,57 @@
 app:
-  env: debug # debug/production
-  token_secret: token
+  env: debug # 项目运行模式 debug/production
+  token_secret: token # jwt密钥
+
 http:
-  port: 10080
-  read_time_out: 10
-  write_time_out: 10
-  shutdown_time_out: 10
+  port: 10080 # 项目启动端口
+  read_time_out: 10 # 接口读取请求最大超时时间(s)
+  write_time_out: 10 # 接口返回最大超时时间(s)
+  shutdown_time_out: 10 # 平滑关闭等待时间(s)
+
 db:
-  master:
-    host: 192.168.3.53
+  master: # 主数据库配置
+    host: 127.0.0.1
     port: 3355
-    user: cishop
-    password: fuyuan1906
-    max_open_connections: 10
-    max_idle_connections: 5
-    max_connection_idle_time: 300
+    user: go
+    password: go
+    max_open_connections: 10 # 最大连接数
+    max_idle_connections: 5 # 最大空闲连接数，即始终保持连接的数量
+    max_connection_idle_time: 300 # 连接可复用的最大时间(s)
+
   slave:
-    host: 192.168.3.53
+    host: 127.0.0.1
     port: 3355
-    user: cishop
-    password: fuyuan1906
+    user: go
+    password: go
     max_open_connections: 10
     max_idle_connections: 2
     max_connection_idle_time: 300
+
 redis:
-  address: 192.168.3.53:8003
+  address: 127.0.0.1:8003
   password: ""
   db: 0
-  connect_timeout: 10
-  read_timeout: 5
-  write_timeout: 5
-  pool_size: 5
+  connect_timeout: 10 # 连接超时时间(s)
+  read_timeout: 5 # 读取数据超时时间(s)
+  write_timeout: 5 # 写入数据超时时间(s)
+  pool_size: 5 # 连接池数量
+
 log:
-  out: file # file 文件 stdout 屏幕 redis redis队列
+  out: file # 日志写入方式：file 文件 stdout 屏幕 redis redis队列
   dir: ./log/ # out 为 file 时，需要提供存储的文件夹
-  redisKey: go # out 为 redis 时，需要redis列表的key
+  redisKey: go # out 为 redis 时，需要提供redis列表的key
+
 rabbitmq:
-  host: 192.168.3.53
+  host: 127.0.0.1
   port: 5673
   user: go
   password: go
   vhost: go
-  admin_user: goadmin
-  admin_password: goadmin
-  ex_direct: go.direct
-  ex_topic: go.topic
-  ex_death_letter: go.dl
-  ttl_queue_msg: 86400000
-  ttl_msg: 86400000
-  log_dir: ./log/rabbitmq
+  admin_user: goadmin # vhost对应管理员账号
+  admin_password: goadmin # vhost对应管理员密码
+  ex_direct: go.direct # 基础直连交换机名称，业务系统默认使用
+  ex_topic: go.topic # 主题交换机名称
+  ex_death_letter: go.dl # 死信交换机名称
+  ttl_queue_msg: 86400000 # 队列中消息有效期(ms)
+  ttl_msg: 86400000 # 每条消息的有效期(ms)
+  log_dir: ./log/rabbitmq # 日志存储文件夹地址
