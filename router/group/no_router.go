@@ -2,9 +2,9 @@
 package group
 
 import (
-	"gin/output"
-	"gin/output/code"
 	"github.com/gin-gonic/gin"
+	"github.com/yyyThree/gin/output"
+	"github.com/yyyThree/gin/output/code"
 )
 
 type NoRouter struct {

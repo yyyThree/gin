@@ -1,4 +1,4 @@
-module gin
+module github.com/yyyThree/gin
 
 go 1.15
 
@@ -13,7 +13,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1
-	github.com/go-redis/redis/v8 v8.8.0
+	github.com/go-redis/redis/v8 v8.8.2
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gookit/color v1.3.8 // indirect
 	github.com/howeyc/fsnotify v0.9.0 // indirect
@@ -31,9 +31,10 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v1.1.3 // indirect
 	github.com/spf13/viper v1.7.1
-	github.com/streadway/amqp v1.0.0 // indirect
-	github.com/yyyThree/rabbitmq v0.0.0-20210430054601-333fe040b9ef
+	github.com/streadway/amqp v1.0.0
+	github.com/yyyThree/rabbitmq v1.0.0
 	github.com/yyyThree/zap v1.0.1
+	go.opentelemetry.io/otel v0.20.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect
 	golang.org/x/text v0.3.5 // indirect

@@ -2,9 +2,9 @@
 package group
 
 import (
-	"gin/controller"
-	"gin/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/yyyThree/gin/controller"
+	"github.com/yyyThree/gin/middleware"
 )
 
 type Item struct {

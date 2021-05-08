@@ -1,16 +1,18 @@
 package service
 
 import (
-	"gin/constant"
-	"gin/dao"
-	"gin/helper"
-	"gin/library/log"
-	"gin/library/valid"
-	"gin/model/entity"
-	"gin/model/field"
-	"gin/model/param"
-	"gin/output"
-	"gin/output/code"
+	"github.com/yyyThree/gin/constant"
+	"github.com/yyyThree/gin/dao"
+	"github.com/yyyThree/gin/helper"
+	"github.com/yyyThree/gin/library/log"
+	"github.com/yyyThree/gin/library/rabbitmq/common"
+	"github.com/yyyThree/gin/library/valid"
+	"github.com/yyyThree/gin/model/entity"
+	"github.com/yyyThree/gin/model/field"
+	"github.com/yyyThree/gin/model/param"
+	"github.com/yyyThree/gin/output"
+	"github.com/yyyThree/gin/output/code"
+	"github.com/yyyThree/rabbitmq"
 	"github.com/yyyThree/zap"
 	"strings"
 )
@@ -18,6 +20,8 @@ import (
 type Item struct {
 }
 
+// exTableName 表示传入字段的前缀，如skus.xxxx，与fields定义的保持一致
+// json: xxx 表示返回结果的key值
 type ItemDetail struct {
 	entity.Items
 	Skus []*entity.Skus `json:"skus,omitempty" exTableName:"skus"`
@@ -37,7 +41,6 @@ func (item *Item) Add(params param.ItemAdd) (data ItemDetail, err error) {
 		return
 	}
 	tx := db.Begin()
-	defer tx.Commit()
 
 	// step2 创建商品
 	itemEntity := &entity.Items{
@@ -69,6 +72,14 @@ func (item *Item) Add(params param.ItemAdd) (data ItemDetail, err error) {
 		err = output.Error(code.SkuInsertFail)
 		return
 	}
+	tx.Commit()
+
+	// step4 发布商品需要同步的消息
+	_ = rabbitmq.PublishWithConfirm(common.ItemSync, helper.StructToJson(param.ItemSync{
+		ItemId:   data.ItemID,
+		SyncType: constant.ItemSyncTypeAdd,
+		Common:   params.Common,
+	}))
 
 	return
 }
@@ -100,7 +111,6 @@ func (item *Item) Update(params param.ItemUpdate) (err error) {
 		return
 	}
 	tx := db.Begin()
-	defer tx.Commit()
 
 	// step3 更新商品信息
 	err = dao.NewItem(tx).Update(constant.BaseMap{
@@ -189,6 +199,16 @@ func (item *Item) Update(params param.ItemUpdate) (err error) {
 			return
 		}
 	}
+
+	tx.Commit()
+
+	// step5 发布商品需要同步的消息
+	_ = rabbitmq.PublishWithConfirm(common.ItemSync, helper.StructToJson(param.ItemSync{
+		ItemId:   params.ItemId,
+		SyncType: constant.ItemSyncTypeUpdate,
+		Common:   params.Common,
+	}))
+
 	return
 }
 
@@ -299,6 +319,13 @@ func (item *Item) Delete(params param.ItemDelete) (err error) {
 			"item_id": params.ItemId,
 			"state":   []int{constant.SkuStateNormal, constant.SkuStateDeleted},
 		}, constant.CommonLimit)
+
+		// 发布商品需要同步的消息
+		_ = rabbitmq.PublishWithConfirm(common.ItemSync, helper.StructToJson(param.ItemSync{
+			ItemId:   params.ItemId,
+			SyncType: constant.ItemSyncTypeDelete,
+			Common:   params.Common,
+		}))
 	}()
 
 	return
@@ -359,6 +386,13 @@ func (item *Item) Recover(params param.ItemRecover) (err error) {
 			"item_id": params.ItemId,
 			"state":   []int{constant.SkuStateDeleted, constant.SkuStateFinalDeleted},
 		}, constant.CommonLimit)
+
+		// 发布商品需要同步的消息
+		_ = rabbitmq.PublishWithConfirm(common.ItemSync, helper.StructToJson(param.ItemSync{
+			ItemId:   params.ItemId,
+			SyncType: constant.ItemSyncTypeRecover,
+			Common:   params.Common,
+		}))
 	}()
 
 	return

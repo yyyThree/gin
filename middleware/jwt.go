@@ -2,13 +2,13 @@ package middleware
 
 import (
 	"fmt"
-	"gin/config"
-	"gin/constant"
-	"gin/helper"
-	tokenLibrary "gin/library/token"
-	"gin/output"
-	"gin/output/code"
 	"github.com/gin-gonic/gin"
+	"github.com/yyyThree/gin/config"
+	"github.com/yyyThree/gin/constant"
+	"github.com/yyyThree/gin/helper"
+	tokenLibrary "github.com/yyyThree/gin/library/token"
+	"github.com/yyyThree/gin/output"
+	"github.com/yyyThree/gin/output/code"
 	"strings"
 )
 

@@ -2,8 +2,8 @@ package redis
 
 import (
 	"context"
-	"gin/config"
 	"github.com/go-redis/redis/v8"
+	"github.com/yyyThree/gin/config"
 	"time"
 )
 

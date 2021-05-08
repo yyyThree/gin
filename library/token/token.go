@@ -3,10 +3,10 @@ package token
 import (
 	"encoding/json"
 	"errors"
-	"gin/constant"
-	"gin/output"
-	"gin/output/code"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/yyyThree/gin/constant"
+	"github.com/yyyThree/gin/output"
+	"github.com/yyyThree/gin/output/code"
 	"strings"
 	"time"
 )

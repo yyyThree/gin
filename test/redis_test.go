@@ -2,8 +2,8 @@ package test
 
 import (
 	"fmt"
-	"gin/config"
-	"gin/library/redis"
+	"github.com/yyyThree/gin/config"
+	"github.com/yyyThree/gin/library/redis"
 	"testing"
 )
 

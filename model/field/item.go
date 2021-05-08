@@ -1,9 +1,9 @@
 package field
 
 import (
-	"gin/constant"
-	"gin/helper"
-	"gin/model/entity"
+	"github.com/yyyThree/gin/constant"
+	"github.com/yyyThree/gin/helper"
+	"github.com/yyyThree/gin/model/entity"
 	"reflect"
 	"strings"
 )
@@ -21,7 +21,7 @@ var (
 	}
 	// 逻辑层调用顺序
 	ItemExTablesSort = []string{"base", "skus"}
-	itemFields      = make(constant.FieldMap)
+	itemFields       = make(constant.FieldMap)
 )
 
 func GetItemFields() constant.FieldMap {

@@ -6,12 +6,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"gin/constant"
-	"gin/model/entity"
-	"gin/model/param"
 	mapSet "github.com/deckarep/golang-set"
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
+	"github.com/yyyThree/gin/constant"
+	"github.com/yyyThree/gin/model/entity"
+	"github.com/yyyThree/gin/model/param"
 	"io/ioutil"
 	"reflect"
 	"strconv"
@@ -205,6 +205,26 @@ func StructToMap(s interface{}) constant.BaseMap {
 	return toData.(map[string]interface{})
 }
 
+// 结构体转JSON
+func StructToJson(s interface{}) string {
+	if !IsStruct(s) {
+		return ""
+	}
+
+	js, err := json.Marshal(s)
+	if err != nil {
+		return ""
+	}
+
+	return string(js)
+}
+
+// JSON转struct
+func JsonToStruct(jsonString []byte, s interface{}) interface{} {
+	_ = json.Unmarshal(jsonString, &s)
+	return s
+}
+
 // JSON转map
 func JsonToMap(jsonString []byte) constant.BaseMap {
 	var toData interface{}
@@ -212,6 +232,15 @@ func JsonToMap(jsonString []byte) constant.BaseMap {
 		return make(constant.BaseMap)
 	}
 	return toData.(map[string]interface{})
+}
+
+// map转JSON
+func MapToJson(m map[string]interface{}) string {
+	js, err := json.Marshal(m)
+	if err != nil {
+		return ""
+	}
+	return string(js)
 }
 
 func GenerateUuid() string {

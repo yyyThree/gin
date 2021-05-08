@@ -3,10 +3,10 @@ package output
 import (
 	"encoding/json"
 	"errors"
-	"gin/output/code"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-sql-driver/mysql"
+	"github.com/yyyThree/gin/output/code"
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"

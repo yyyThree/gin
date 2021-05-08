@@ -2,14 +2,14 @@ package dao
 
 import (
 	"fmt"
-	"gin/constant"
-	"gin/model/db"
+	"github.com/yyyThree/gin/constant"
+	"github.com/yyyThree/gin/model/db"
 	"gorm.io/gorm"
 	"strings"
 )
 
 type dao struct {
-	Tx *gorm.DB
+	Tx     *gorm.DB
 	DbName string
 }
 

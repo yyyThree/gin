@@ -1,9 +1,9 @@
 package valid
 
 import (
-	"gin/constant"
-	"gin/helper"
 	"github.com/asaskevich/govalidator"
+	"github.com/yyyThree/gin/constant"
+	"github.com/yyyThree/gin/helper"
 	"reflect"
 	"regexp"
 )
@@ -17,36 +17,36 @@ var errMsgMap = constant.StringMap{
 	"EqualOrGreaterThan": "校验值大小失败",
 	"LessThan":           "校验值大小失败",
 	"EqualOrLessThan":    "校验值大小失败",
-	"Contains":          "校验字符串包含关系失败",
-	"HasLowerCase":      "校验存在小写字母失败",
-	"HasUpperCase":      "校验存在大写字母失败",
-	"IsLowerCase":       "校验小写字符串失败",
-	"IsUpperCase":       "校验大写字符串失败",
-	"HasWhitespace":     "校验存在空格符失败",
-	"HasWhitespaceOnly": "校验仅存在空格符失败",
-	"IsAlpha":           "校验仅存在字母失败",
-	"IsNumeric":         "校验仅存在数字失败",
-	"IsAlphanumeric":    "校验仅存在字母和数字失败",
-	"IsASCII":           "校验ascii码失败",
-	"IsBase64":          "校验Base64格式失败",
-	"IsEmail":           "校验邮箱格式失败",
-	"IsFilePath":        "校验文件路径失败",
-	"IsFloat":           "校验浮点数失败",
-	"IsHash":            "校验哈希格式失败",
-	"IsIP":              "校验IP格式失败",
-	"IsDNSName":         "校验DNS地址格式失败",
-	"IsJSON":            "校验JSON格式失败",
-	"IsLatitude":        "校验纬度格式失败",
-	"IsLongitude":       "校验经度格式失败",
-	"IsMD5":             "校验MD5格式失败",
-	"IsURL":             "校验URL格式失败",
-	"InRange":           "校验参数范围失败",
-	"StringLength":      "校验字符串长度失败",
-	"MinStringLength":   "校验字符串长度最小值失败",
-	"MaxStringLength":   "校验字符串长度最大值失败",
-	"IsInt": "校验数字类型失败",
-	"Gt": "校验数字值大于失败",
-	"Lt": "校验数字值小于失败",
+	"Contains":           "校验字符串包含关系失败",
+	"HasLowerCase":       "校验存在小写字母失败",
+	"HasUpperCase":       "校验存在大写字母失败",
+	"IsLowerCase":        "校验小写字符串失败",
+	"IsUpperCase":        "校验大写字符串失败",
+	"HasWhitespace":      "校验存在空格符失败",
+	"HasWhitespaceOnly":  "校验仅存在空格符失败",
+	"IsAlpha":            "校验仅存在字母失败",
+	"IsNumeric":          "校验仅存在数字失败",
+	"IsAlphanumeric":     "校验仅存在字母和数字失败",
+	"IsASCII":            "校验ascii码失败",
+	"IsBase64":           "校验Base64格式失败",
+	"IsEmail":            "校验邮箱格式失败",
+	"IsFilePath":         "校验文件路径失败",
+	"IsFloat":            "校验浮点数失败",
+	"IsHash":             "校验哈希格式失败",
+	"IsIP":               "校验IP格式失败",
+	"IsDNSName":          "校验DNS地址格式失败",
+	"IsJSON":             "校验JSON格式失败",
+	"IsLatitude":         "校验纬度格式失败",
+	"IsLongitude":        "校验经度格式失败",
+	"IsMD5":              "校验MD5格式失败",
+	"IsURL":              "校验URL格式失败",
+	"InRange":            "校验参数范围失败",
+	"StringLength":       "校验字符串长度失败",
+	"MinStringLength":    "校验字符串长度最小值失败",
+	"MaxStringLength":    "校验字符串长度最大值失败",
+	"IsInt":              "校验数字类型失败",
+	"Gt":                 "校验数字值大于失败",
+	"Lt":                 "校验数字值小于失败",
 }
 
 // =============自定义方法=============

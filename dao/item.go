@@ -1,8 +1,8 @@
 package dao
 
 import (
-	"gin/constant"
-	"gin/model/entity"
+	"github.com/yyyThree/gin/constant"
+	"github.com/yyyThree/gin/model/entity"
 	"gorm.io/gorm"
 )
 
@@ -12,7 +12,7 @@ type item struct {
 
 func NewItem(txs ...*gorm.DB) *item {
 	return &item{dao{
-		Tx: GetTx(txs...),
+		Tx:     GetTx(txs...),
 		DbName: constant.DbServiceItems,
 	}}
 }

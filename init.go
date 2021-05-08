@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"gin/config"
-	"gin/library/rabbitmq"
-	"gin/model/db"
 	"github.com/gin-gonic/gin"
+	"github.com/yyyThree/gin/config"
+	"github.com/yyyThree/gin/library/rabbitmq"
+	"github.com/yyyThree/gin/model/db"
 	"runtime"
 	"time"
 )
@@ -45,7 +45,7 @@ func configRuntime() {
 	fmt.Printf("Running with %d CPUs\n", numCPU)
 }
 
-func initRabbitmq()  {
+func initRabbitmq() {
 	// 初始化MQ配置
 	rabbitmq.InitConfig()
 

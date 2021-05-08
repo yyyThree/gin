@@ -2,9 +2,9 @@
 package router
 
 import (
-	"gin/middleware"
-	"gin/router/group"
 	"github.com/gin-gonic/gin"
+	"github.com/yyyThree/gin/middleware"
+	"github.com/yyyThree/gin/router/group"
 )
 
 type Group interface {

@@ -3,10 +3,10 @@ package middleware
 
 import (
 	"fmt"
-	"gin/library/log"
-	"gin/output"
-	"gin/output/code"
 	"github.com/gin-gonic/gin"
+	"github.com/yyyThree/gin/library/log"
+	"github.com/yyyThree/gin/output"
+	"github.com/yyyThree/gin/output/code"
 	"github.com/yyyThree/zap"
 	"runtime"
 )

@@ -1,16 +1,13 @@
 package controller
 
 import (
-	"fmt"
-	"gin/helper"
-	"gin/library/rabbitmq/common"
-	"gin/model/field"
-	"gin/model/param"
-	"gin/output"
-	"gin/output/code"
-	"gin/service"
 	"github.com/gin-gonic/gin"
-	"github.com/yyyThree/rabbitmq"
+	"github.com/yyyThree/gin/helper"
+	"github.com/yyyThree/gin/model/field"
+	"github.com/yyyThree/gin/model/param"
+	"github.com/yyyThree/gin/output"
+	"github.com/yyyThree/gin/output/code"
+	"github.com/yyyThree/gin/service"
 )
 
 type Item struct {
@@ -18,10 +15,6 @@ type Item struct {
 
 // 添加商品
 func (item *Item) Add(c *gin.Context) {
-	rabbitmq.PublishWithConfirm(common.ItemAdd, "test1")
-	rabbitmq.Publish(common.ItemAdd, "test2")
-
-	return
 	params := param.ItemAdd{}
 	if err := c.ShouldBind(&params); err != nil {
 		output.Response(c, nil, output.Error(code.ParamBindErr))
@@ -104,7 +97,26 @@ func (item *Item) Get(c *gin.Context) {
 	return
 }
 
-// 搜索商品列表 TODO
+// 搜索商品列表
 func (item *Item) Search(c *gin.Context) {
-	fmt.Println("ItemDel")
+	params := &param.ItemSearch{}
+	if err := c.ShouldBind(&params); err != nil {
+		output.Response(c, nil, output.Error(code.ParamBindErr))
+		return
+	}
+	helper.AppendTokenParams(c, &params.Common)
+
+	data, total, err := (&service.ItemSearch{}).Search(params)
+	if err != nil {
+		output.Response(c, nil, err)
+		return
+	}
+
+	output.Response(c, &output.ListResponse{
+		SucResponse: &output.SucResponse{
+			Data: helper.FilterStructsByFields(data, params.Fields, field.GetItemFields()),
+		},
+		Total: total,
+	}, nil)
+	return
 }

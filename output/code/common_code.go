@@ -14,8 +14,8 @@ const (
 	TokenNotValidYet Code = 1006 // token未生效
 	TokenNotValid    Code = 1007 // token无效
 
-	ParamBindErr  Code = 2001 // 参数绑定失败
-	IllegalParams Code = 2002 // 参数非法
+	ParamBindErr          Code = 2001 // 参数绑定失败
+	IllegalParams         Code = 2002 // 参数非法
 	IllegalJsonTypeString Code = 2003 // 非法json字符串
 
 	RecordNotFound Code = 3001 // 未查询到记录

@@ -20,7 +20,7 @@ type SqlBetweenInMap map[string][2]interface{}
 type SqlOrderByMap map[string]string
 
 type SqlBuild struct {
-	Where   BaseMap
+	Where   map[string]interface{}
 	WhereIn SqlWhereInMap
 	Between SqlBetweenInMap
 	Like    BaseMap

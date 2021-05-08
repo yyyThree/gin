@@ -1,7 +1,7 @@
 package output
 
 import (
-	"gin/output/code"
+	"github.com/yyyThree/gin/output/code"
 )
 
 type Status struct {

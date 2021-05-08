@@ -2,10 +2,10 @@ package common
 
 // 消息路由
 const (
-	ItemAdd = "item.add" // 商品添加
+	ItemSync = "item.sync" // 商品数据同步
 )
 
 // 死信消息路由
 const (
-	CommonDl = "common.dl" // 通用
+	ItemDl = "item.dl" // 商品通用
 )
