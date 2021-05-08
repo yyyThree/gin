@@ -74,7 +74,7 @@ type rabbitmq struct {
 	ExDeathLetter string `mapstructure:"ex_death_letter"`
 	TtlQueueMsg   int    `mapstructure:"ttl_queue_msg"`
 	TtlMsg        int    `mapstructure:"ttl_msg"`
-	LogDir        string `mapstructure:"log_dir""`
+	LogDir        string `mapstructure:"log_dir"`
 }
 
 var (

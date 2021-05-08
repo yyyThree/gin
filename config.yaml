@@ -1,5 +1,5 @@
 app:
-  env: debug
+  env: debug # debug/production
   token_secret: token
 http:
   port: 10080

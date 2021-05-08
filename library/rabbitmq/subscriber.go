@@ -3,7 +3,7 @@ package rabbitmq
 import "github.com/yyyThree/gin/library/rabbitmq/subscriber"
 
 // 消息订阅
-// 需要订阅的消息放这里
+// 需要启动的的订阅者放这里
 var Subscribers = []func(){
 	// 商品模块
 	subscriber.SyncItemSearch,

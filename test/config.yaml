@@ -1,5 +1,5 @@
 app:
-  env: debug
+  env: debug # debug/production
   token_secret: token
 http:
   port: 10080
@@ -46,5 +46,6 @@ rabbitmq:
   ex_direct: go.direct
   ex_topic: go.topic
   ex_death_letter: go.dl
-  ttl_queue_msg: 86400
-  ttl_msg: 86400
+  ttl_queue_msg: 86400000
+  ttl_msg: 86400000
+  log_dir: ./log/rabbitmq
