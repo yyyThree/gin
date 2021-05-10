@@ -24,7 +24,7 @@
 - 支持数据库迁移
 - 支持统一接口参数校验  
 - 支持<a href="https://github.com/yyyThree/zap" target="_blank">zap</a>日志收集
-- 支持<a href="https://github.com/yyyThree/zap" target="_blank">rabbitmq</a>使用
+- 支持<a href="https://github.com/yyyThree/rabbitmq" target="_blank">rabbitmq</a>使用
 - 支持`redis`使用 
 - 支持`viper`配置文件解析
 - 支持单元测试  
