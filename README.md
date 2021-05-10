@@ -552,13 +552,21 @@ log.GetLogger().Error("itemRecover", zap.BaseMap{
 })
 ```
 ### 十三、单元测试
+1. 配置`test/config.yaml`
+2. 执行测试
+   ```go
+   cd test
+   // jwt测试
+   go test token_test.go -v
+   
+   // 测试redis
+   go test redis_test.go -v
+   ```
+### 十四、编译
 ```go
-cd test
-// jwt测试
-go test token_test.go -v
-
-// 测试redis
-go test redis_test.go -v
+// make help 查看更多命令
+make // 编译 Go 代码, 生成二进制文件
+make start // 启动服务
 ```
 
 ## 五、示例功能（商品服务）
