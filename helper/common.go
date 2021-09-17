@@ -13,6 +13,7 @@ import (
 	"github.com/yyyThree/gin/model/entity"
 	"github.com/yyyThree/gin/model/param"
 	"io/ioutil"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -464,3 +465,27 @@ func InterfaceToInt(i interface{}) (data int) {
 	}
 	return
 }
+
+func GetEnv(key string) string {
+	return os.Getenv(key)
+}
+
+func GetEnvInt(key string) int {
+	return InterfaceToInt(os.Getenv(key))
+}
+
+func SetEnv(config *string, envKey string)  {
+	if env := GetEnv(envKey); len(env) > 0 {
+		*config = env
+	}
+	return
+}
+
+func SetEnvInt(config *int, envKey string)  {
+	if env := GetEnvInt(envKey); env > 0 {
+		*config = env
+	}
+	return
+}
+
+

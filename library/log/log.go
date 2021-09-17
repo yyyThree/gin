@@ -13,7 +13,7 @@ func GetLogger() *zap.Logger {
 	}
 	logger = zap.New(zap.Config{
 		Env:    zap.Env(config.Config.App.Env),
-		Writer: zap.Writer(config.Config.Log.Out),
+		Writer: zap.Writer(config.Config.Log.Writer),
 		LogDir: config.Config.Log.Dir,
 	})
 	return logger
